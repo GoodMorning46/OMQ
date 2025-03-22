@@ -6,8 +6,17 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5F9814C02D60A77F00C2C5BA /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 5F9814BF2D60A77F00C2C5BA /* FirebaseAnalytics */; };
+		5F9814C22D60A77F00C2C5BA /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5F9814C12D60A77F00C2C5BA /* FirebaseAuth */; };
+		5F9814C42D60A77F00C2C5BA /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5F9814C32D60A77F00C2C5BA /* FirebaseFirestore */; };
+		5FA5CAAF2D6B7B7500ECD52E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 5FA5CAAE2D6B7B7500ECD52E /* FirebaseStorage */; };
+		5FA96CAD2D8EC45100887CF5 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5FA96CAC2D8EC44D00887CF5 /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5FA4AB282D216563005DE833 /* OMQ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OMQ.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FA96CAC2D8EC44D00887CF5 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +32,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9814C02D60A77F00C2C5BA /* FirebaseAnalytics in Frameworks */,
+				5FA5CAAF2D6B7B7500ECD52E /* FirebaseStorage in Frameworks */,
+				5F9814C22D60A77F00C2C5BA /* FirebaseAuth in Frameworks */,
+				5F9814C42D60A77F00C2C5BA /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,6 +45,7 @@
 		5FA4AB1F2D216563005DE833 = {
 			isa = PBXGroup;
 			children = (
+				5FA96CAC2D8EC44D00887CF5 /* .gitignore */,
 				5FA4AB2A2D216563005DE833 /* OMQ */,
 				5FA4AB292D216563005DE833 /* Products */,
 			);
@@ -65,6 +79,10 @@
 			);
 			name = OMQ;
 			packageProductDependencies = (
+				5F9814BF2D60A77F00C2C5BA /* FirebaseAnalytics */,
+				5F9814C12D60A77F00C2C5BA /* FirebaseAuth */,
+				5F9814C32D60A77F00C2C5BA /* FirebaseFirestore */,
+				5FA5CAAE2D6B7B7500ECD52E /* FirebaseStorage */,
 			);
 			productName = OMQ;
 			productReference = 5FA4AB282D216563005DE833 /* OMQ.app */;
@@ -94,6 +112,9 @@
 			);
 			mainGroup = 5FA4AB1F2D216563005DE833;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5F9814BE2D60A77F00C2C5BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5FA4AB292D216563005DE833 /* Products */;
 			projectDirPath = "";
@@ -109,6 +130,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FA96CAD2D8EC45100887CF5 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,9 +271,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"OMQ/Preview Content\"";
+				DEVELOPMENT_TEAM = W53PXGNAFY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -264,8 +288,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = fr.OMQ;
+				PRODUCT_BUNDLE_IDENTIFIER = com.benjaminlanery.OMQ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -277,9 +302,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"OMQ/Preview Content\"";
+				DEVELOPMENT_TEAM = W53PXGNAFY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -292,8 +319,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = fr.OMQ;
+				PRODUCT_BUNDLE_IDENTIFIER = com.benjaminlanery.OMQ;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -322,6 +350,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5F9814BE2D60A77F00C2C5BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.8.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5F9814BF2D60A77F00C2C5BA /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9814BE2D60A77F00C2C5BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		5F9814C12D60A77F00C2C5BA /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9814BE2D60A77F00C2C5BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		5F9814C32D60A77F00C2C5BA /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9814BE2D60A77F00C2C5BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		5FA5CAAE2D6B7B7500ECD52E /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9814BE2D60A77F00C2C5BA /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5FA4AB202D216563005DE833 /* Project object */;
 }
