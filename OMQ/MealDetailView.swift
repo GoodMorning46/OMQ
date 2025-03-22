@@ -4,107 +4,151 @@ import FirebaseAuth
 
 struct MealDetailView: View {
     let meal: Meal
-    @Environment(\.dismiss) private var dismiss
     @State private var showAlert = false
     @State private var showSuccess = false
-
     @State private var isEditing = false
     @State private var editedName: String = ""
+    
+    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        VStack(spacing: 16) {
-            if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 300)
-                            .clipped()
-                    case .failure:
-                        Image(systemName: "photo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 300)
-                            .foregroundColor(.gray)
-                    case .empty:
-                        ProgressView()
-                            .frame(height: 300)
-                    @unknown default:
-                        EmptyView()
+        ZStack(alignment: .topLeading) {
+            VStack(spacing: 0) {
+                // ✅ Zone image en haut
+                ZStack {
+                    if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 300)
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                                    .ignoresSafeArea(.container, edges: .top) // 👈 Ajout ici
+                            case .failure:
+                                Image(systemName: "photo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 300)
+                                    .frame(maxWidth: .infinity)
+                                    .foregroundColor(.gray)
+                            case .empty:
+                                ProgressView()
+                                    .frame(height: 300)
+                                    .frame(maxWidth: .infinity)
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
                     }
                 }
-            }
 
-            // 🔤 Affichage ou édition du nom
-            if isEditing {
-                TextField("Nouveau nom du plat", text: $editedName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .font(.title2)
-                    .padding(.top)
-                
-                Button {
-                    updateMealName()
-                } label: {
-                    Label("Valider", systemImage: "checkmark")
+                // ✅ Partie blanche avec infos
+                VStack(alignment: .leading, spacing: 16) {
+                    if isEditing {
+                        TextField("Nouveau nom du plat", text: $editedName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .font(.title2)
+                    } else {
+                        Text(meal.name)
+                            .font(.system(size: 28, weight: .bold))
+                    }
+
+                    Text(meal.description ?? "Pas de description.")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+
+                    if isEditing {
+                        Button {
+                            updateMealName()
+                        } label: {
+                            Label("Valider", systemImage: "checkmark")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+                    } else {
+                        Button("Modifier le nom") {
+                            editedName = meal.name
+                            isEditing = true
+                        }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-            } else {
-                Text(meal.name)
-                    .font(.title2)
-                    .padding(.top)
+                        .background(Color.orange.opacity(0.2))
+                        .cornerRadius(12)
+                    }
 
-                Button("Modifier le nom") {
-                    editedName = meal.name
-                    isEditing = true
+                    Button("Supprimer le repas") {
+                        showAlert = true
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red.opacity(0.1))
+                    .foregroundColor(.red)
+                    .cornerRadius(12)
+
+                    Spacer()
                 }
                 .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.orange.opacity(0.2))
+                .background(Color.white)
+                .cornerRadius(30, corners: [.topLeft, .topRight])
+                .offset(y: -30)
+                .shadow(radius: 10)
+            }
+
+            // ✅ Bouton retour sur l’image
+            // ✅ Bouton retour sur l’image
+            Button(action: {
+                presentationMode.wrappedValue.dismiss()
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "chevron.left")
+                    Text("Back")
+                }
+                .foregroundColor(.white)
+                .padding(12)
+                .background(.ultraThinMaterial)
                 .cornerRadius(10)
+                .padding(.leading, 16)
+                .padding(.top, 50)
             }
 
-            Button("Supprimer le repas") {
-                showAlert = true
+            // ✅ Toast succès
+            if showSuccess {
+                VStack {
+                    Spacer().frame(height: 80)
+                    Text("✅ Modification réussie")
+                        .padding()
+                        .background(Color.green.opacity(0.95))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showSuccess = false
+                                    isEditing = false
+                                }
+                            }
+                        }
+                    Spacer()
+                }
             }
-            .foregroundColor(.red)
-            .padding(.bottom)
-
-            Spacer()
         }
-        .padding()
+        .ignoresSafeArea(edges: .top)
         .alert("Supprimer ce repas ?", isPresented: $showAlert) {
             Button("Oui", role: .destructive, action: deleteMeal)
             Button("Non", role: .cancel) { }
         } message: {
             Text("Cette action est irréversible.")
         }
-        .overlay(
-            VStack {
-                if showSuccess {
-                    Text("✅ Modification réussie")
-                        .padding()
-                        .background(Color.green.opacity(0.9))
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .transition(.opacity)
-                        .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                showSuccess = false
-                                isEditing = false
-                            }
-                        }
-                }
-            }
-            .animation(.easeInOut, value: showSuccess)
-            , alignment: .top
-        )
+        .navigationBarBackButtonHidden(true)
     }
+    
 
     // MARK: 🔥 Mise à jour du nom
     private func updateMealName() {
@@ -116,27 +160,21 @@ struct MealDetailView: View {
             .whereField("name", isEqualTo: meal.name)
             .getDocuments { snapshot, error in
                 if let error = error {
-                    print("❌ Erreur lors de la mise à jour : \(error.localizedDescription)")
+                    print("❌ Erreur mise à jour : \(error.localizedDescription)")
                     return
                 }
 
-                guard let document = snapshot?.documents.first else {
-                    print("❌ Aucun document trouvé à modifier.")
-                    return
-                }
+                guard let document = snapshot?.documents.first else { return }
 
                 document.reference.updateData(["name": editedName]) { error in
-                    if let error = error {
-                        print("❌ Erreur mise à jour nom : \(error.localizedDescription)")
-                    } else {
-                        print("✅ Nom mis à jour avec succès !")
+                    if error == nil {
                         showSuccess = true
                     }
                 }
             }
     }
 
-    // MARK: 🔥 Suppression du repas
+    // MARK: 🔥 Suppression
     private func deleteMeal() {
         guard let userId = Auth.auth().currentUser?.uid else { return }
 
@@ -145,21 +183,29 @@ struct MealDetailView: View {
             .collection("generatedMeals")
             .whereField("name", isEqualTo: meal.name)
             .getDocuments { snapshot, error in
-                if let error = error {
-                    print("❌ Erreur suppression : \(error.localizedDescription)")
-                    return
-                }
-
-                guard let documents = snapshot?.documents else { return }
-
-                for doc in documents {
-                    doc.reference.delete()
-                }
-
-                showSuccess = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    dismiss()
+                if let docs = snapshot?.documents {
+                    docs.first?.reference.delete()
+                    showSuccess = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        presentationMode.wrappedValue.dismiss()
+                    }
                 }
             }
+    }
+}
+
+// Coin arrondi uniquement en haut
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+struct RoundedCorner: Shape {
+    var radius: CGFloat
+    var corners: UIRectCorner
+    func path(in rect: CGRect) -> Path {
+        return Path(UIBezierPath(roundedRect: rect,
+                                 byRoundingCorners: corners,
+                                 cornerRadii: CGSize(width: radius, height: radius)).cgPath)
     }
 }
