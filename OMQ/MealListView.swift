@@ -16,7 +16,7 @@ struct MealListView: View {
 
     // MARK: - Body
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
                 headerView
                     .padding(.top, 20)
@@ -27,17 +27,24 @@ struct MealListView: View {
                     mealsGridView
                 }
 
-                Spacer() // 🔧 Ajout d'un Spacer pour pousser le contenu vers le haut
+                Spacer()
             }
             .padding(.horizontal, 20)
             .onAppear {
-                print("🔥 MealListView s'affiche, lancement de fetchGeneratedMeals()")
                 viewModel.fetchGeneratedMeals()
             }
             .sheet(isPresented: $showContentView) {
                 ContentView(meals: $viewModel.meals, onDismiss: {
                     viewModel.fetchGeneratedMeals()
                 })
+            }
+            .navigationDestination(isPresented: Binding<Bool>(
+                get: { selectedMeal != nil },
+                set: { if !$0 { selectedMeal = nil } }
+            )) {
+                if let meal = selectedMeal {
+                    MealDetailView(meal: meal)
+                }
             }
         }
     }
@@ -78,7 +85,6 @@ struct MealListView: View {
                         ForEach(viewModel.meals) { meal in
                             MealCardView(meal: meal) {
                                 selectedMeal = meal
-                                showPicker = true
                             }
                         }
                     }
@@ -101,38 +107,40 @@ struct MealListView: View {
     // MARK: - MealCardView
     struct MealCardView: View {
         let meal: Meal
-        let onPlan: () -> Void
+        let onTap: () -> Void
 
         var body: some View {
             ZStack(alignment: .topTrailing) {
                 VStack(spacing: 0) {
-                    if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image.resizable()
-                                    .scaledToFill()
-                                    .frame(width: 170, height: 170)
-                                    .clipped()
-                            case .failure:
-                                Image(systemName: "photo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 170, height: 170)
-                                    .foregroundColor(.gray)
-                            case .empty:
-                                ProgressView()
-                                    .frame(width: 170, height: 170)
-                            @unknown default:
-                                EmptyView()
+                    Button(action: onTap) {
+                        if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image.resizable()
+                                        .scaledToFill()
+                                        .frame(width: 170, height: 170)
+                                        .clipped()
+                                case .failure:
+                                    Image(systemName: "photo")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 170, height: 170)
+                                        .foregroundColor(.gray)
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 170, height: 170)
+                                @unknown default:
+                                    EmptyView()
+                                }
                             }
+                        } else {
+                            Image(systemName: "photo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 170, height: 170)
+                                .foregroundColor(.gray)
                         }
-                    } else {
-                        Image(systemName: "photo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 170, height: 170)
-                            .foregroundColor(.gray)
                     }
 
                     Text(meal.name)
@@ -144,15 +152,6 @@ struct MealListView: View {
                 .background(Color.white)
                 .cornerRadius(12)
                 .clipped()
-
-//                Button(action: onPlan) {
-//                    Image(systemName: "calendar")
-//                        .padding(8)
-//                        .background(Color.orange)
-//                        .foregroundColor(.white)
-//                        .clipShape(Circle())
-//                        .padding(6)
-//                }
             }
         }
     }
