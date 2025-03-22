@@ -13,39 +13,39 @@ struct MealDetailView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            VStack(spacing: 0) {
-                // ✅ Zone image en haut
-                ZStack {
-                    if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 300)
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                                    .ignoresSafeArea(.container, edges: .top) // 👈 Ajout ici
-                            case .failure:
-                                Image(systemName: "photo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 300)
-                                    .frame(maxWidth: .infinity)
-                                    .foregroundColor(.gray)
-                            case .empty:
-                                ProgressView()
-                                    .frame(height: 300)
-                                    .frame(maxWidth: .infinity)
-                            @unknown default:
-                                EmptyView()
-                            }
-                        }
+            if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 400)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
+                            .ignoresSafeArea() // ✅ Ignorer les safe areas (haut de l'écran)
+                    case .failure:
+                        Image(systemName: "photo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 400)
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.gray)
+                            .ignoresSafeArea()
+                    case .empty:
+                        ProgressView()
+                            .frame(height: 400)
+                            .frame(maxWidth: .infinity)
+                            .ignoresSafeArea()
+                    @unknown default:
+                        EmptyView()
                     }
                 }
+            }
 
-                // ✅ Partie blanche avec infos
+            VStack(spacing: 0) {
+                Spacer().frame(height: 370) // Pour laisser l’image visible sous la carte blanche
+
                 VStack(alignment: .leading, spacing: 16) {
                     if isEditing {
                         TextField("Nouveau nom du plat", text: $editedName)
@@ -96,11 +96,9 @@ struct MealDetailView: View {
                 .padding()
                 .background(Color.white)
                 .cornerRadius(30, corners: [.topLeft, .topRight])
-                .offset(y: -30)
                 .shadow(radius: 10)
             }
 
-            // ✅ Bouton retour sur l’image
             // ✅ Bouton retour sur l’image
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
@@ -114,7 +112,7 @@ struct MealDetailView: View {
                 .background(.ultraThinMaterial)
                 .cornerRadius(10)
                 .padding(.leading, 16)
-                .padding(.top, 50)
+                .padding(.top, 70)
             }
 
             // ✅ Toast succès
@@ -139,7 +137,7 @@ struct MealDetailView: View {
                 }
             }
         }
-        .ignoresSafeArea(edges: .top)
+        .edgesIgnoringSafeArea(.all)
         .alert("Supprimer ce repas ?", isPresented: $showAlert) {
             Button("Oui", role: .destructive, action: deleteMeal)
             Button("Non", role: .cancel) { }

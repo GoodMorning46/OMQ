@@ -5,7 +5,7 @@ import FirebaseAuth
 struct MealListView: View {
     // MARK: - Properties
     @StateObject private var viewModel = MealViewModel()
-    @State private var selectedMeal: Meal?
+    @State private var selectedMeal: Meal? = nil
     @State private var showPicker = false
     @State private var showContentView = false
 
@@ -38,13 +38,8 @@ struct MealListView: View {
                     viewModel.fetchGeneratedMeals()
                 })
             }
-            .navigationDestination(isPresented: Binding<Bool>(
-                get: { selectedMeal != nil },
-                set: { if !$0 { selectedMeal = nil } }
-            )) {
-                if let meal = selectedMeal {
-                    MealDetailView(meal: meal)
-                }
+            .fullScreenCover(item: $selectedMeal) { meal in
+                MealDetailView(meal: meal)
             }
         }
     }

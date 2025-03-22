@@ -52,7 +52,7 @@ struct MainView: View {
                     .padding(.bottom, 30)
             }
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .edgesIgnoringSafeArea(.bottom) 
     }
 }
 
