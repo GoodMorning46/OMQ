@@ -50,8 +50,8 @@ struct MealListView: View {
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("On mange quoi ?")
-                    .font(.custom("SFProText-Bold", size: 25))
+                Text("On mange\nquoi ?")
+                    .font(.custom("SFProText-Bold", size: 30))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Button(action: {
@@ -64,7 +64,10 @@ struct MealListView: View {
                         .clipShape(Circle())
                 }
             }
-            
+
+            // Ajout d’un espacement
+            Spacer().frame(height: 4) // 👈 tu peux ajuster cette valeur
+
             // 🔍 Barre de recherche
             HStack {
                 Image(systemName: "magnifyingglass")
@@ -75,24 +78,23 @@ struct MealListView: View {
             .padding(10)
             .background(Color.white)
             .cornerRadius(12)
+            .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
             
+
             // ➕ Bouton Ajouter un repas
             Button(action: {
                 showContentView = true
             }) {
-                Button(action: {
-                    showContentView = true
-                }) {
-                    Text("Ajouter un repas")
-                        .font(.system(size: 14, weight: .semibold))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(Color.orange)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 4)
-                }
+                Text("Ajouter un repas")
+                    .font(.system(size: 14, weight: .semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color.orange)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 4)
             }
+            .padding(.bottom, 12) // ou Spacer(minLength: 12)
         }
     }
 
@@ -106,10 +108,7 @@ struct MealListView: View {
                     .padding()
             } else {
                 ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.flexible(), spacing: 16),
-                        GridItem(.flexible(), spacing: 16)
-                    ], spacing: 20) {
+                    VStack(spacing: 16) {
                         ForEach(viewModel.meals) { meal in
                             MealCardView(meal: meal) {
                                 selectedMeal = meal
@@ -147,17 +146,20 @@ struct MealListView: View {
                                 case .success(let image):
                                     image.resizable()
                                         .scaledToFill()
-                                        .frame(width: 170, height: 170)
+                                        .frame(height: 200)
+                                        .frame(maxWidth: .infinity)
                                         .clipped()
                                 case .failure:
                                     Image(systemName: "photo")
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 170, height: 170)
+                                        .frame(height: 200)
+                                        .frame(maxWidth: .infinity)
                                         .foregroundColor(.gray)
                                 case .empty:
                                     ProgressView()
-                                        .frame(width: 170, height: 170)
+                                        .frame(height: 200)
+                                        .frame(maxWidth: .infinity)
                                 @unknown default:
                                     EmptyView()
                                 }
@@ -166,7 +168,8 @@ struct MealListView: View {
                             Image(systemName: "photo")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 170, height: 170)
+                                .frame(height: 200)
+                                .frame(maxWidth: .infinity)
                                 .foregroundColor(.gray)
                         }
                     }
@@ -176,10 +179,11 @@ struct MealListView: View {
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
-                .frame(width: 170, height: 200)
                 .background(Color.white)
                 .cornerRadius(12)
                 .clipped()
+                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 4)
+                .padding(.horizontal, 8) // ✅ optionnel pour l’aération
             }
         }
     }
