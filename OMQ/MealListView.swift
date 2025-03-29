@@ -8,6 +8,7 @@ struct MealListView: View {
     @State private var selectedMeal: Meal? = nil
     @State private var showPicker = false
     @State private var showContentView = false
+    @State private var searchText: String = ""
 
     @EnvironmentObject var authManager: AuthManager
     @ObservedObject var mealPlanner: MealPlanner
@@ -30,6 +31,7 @@ struct MealListView: View {
                 Spacer()
             }
             .padding(.horizontal, 20)
+            .background(Color.appBackground) // ✅ Fond personnalisé ici
             .onAppear {
                 viewModel.fetchGeneratedMeals()
             }
@@ -44,21 +46,52 @@ struct MealListView: View {
         }
     }
 
-    // MARK: - Header (Titre + Boutons)
+    // MARK: - Header (Titre + Boutons + Barre de recherche)
     private var headerView: some View {
-        HStack {
-            Text("MES PLATS")
-                .font(.custom("SFProText-Bold", size: 25))
-                .frame(maxWidth: .infinity, alignment: .leading)
-
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("On mange quoi ?")
+                    .font(.custom("SFProText-Bold", size: 25))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Button(action: {
+                    showContentView = true
+                }) {
+                    Image(systemName: "plus")
+                        .font(.title3)
+                        .padding(10)
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(Circle())
+                }
+            }
+            
+            // 🔍 Barre de recherche
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                TextField("Rechercher un plat...", text: $searchText)
+                    .textFieldStyle(PlainTextFieldStyle())
+            }
+            .padding(10)
+            .background(Color.white)
+            .cornerRadius(12)
+            
+            // ➕ Bouton Ajouter un repas
             Button(action: {
                 showContentView = true
             }) {
-                Image(systemName: "plus")
-                    .font(.title3)
-                    .padding(10)
-                    .background(Color.blue.opacity(0.1))
-                    .clipShape(Circle())
+                Button(action: {
+                    showContentView = true
+                }) {
+                    Text("Ajouter un repas")
+                        .font(.system(size: 14, weight: .semibold))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.orange)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 4)
+                }
             }
         }
     }
