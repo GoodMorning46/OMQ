@@ -1,12 +1,12 @@
 import Foundation
 
 class ImageGenerator {
-    func generateImage(for mealName: String, ingredients: String, completion: @escaping (String?) -> Void) {
+    func generateImage(for meal: Meal, completion: @escaping (String?) -> Void) {
         let prompt = """
-        Un plat appétissant servi sur une assiette rustique en céramique. Le plat est composé de '\(mealName)'. L’assiette repose sur une table en bois chaleureuse, accompagnée d’un verre de vin et d’herbes fraîches pour une touche gastronomique. La lumière douce et naturelle met en valeur les textures et les couleurs du plat.
+        Un plat joyeux et appétissant, présenté dans une assiette colorée en céramique sur une table en bois clair. Le repas est composé de \(meal.protein), accompagné de \(meal.starchy) et de \(meal.vegetable). La scène est baignée d’une lumière naturelle douce, avec des couleurs vives, des herbes fraîches, et un style convivial qui évoque un déjeuner d’été. L’ambiance est chaleureuse et inspirée des photos culinaires modernes sur Instagram.
         """
         print("📤 Envoi de la requête à OpenAI avec le prompt : \(prompt)")
-        
+
         guard let apiKey = Secrets.openAIKey else {
             print("❌ Erreur : clé API OpenAI manquante.")
             completion(nil)
@@ -25,11 +25,12 @@ class ImageGenerator {
         ]
 
         let body: [String: Any] = [
-                   "model": "dall-e-3",       // ✅ Forcé
-                   "prompt": prompt,
-                   "n": 1,
-                   "size": "1024x1024"        // ✅ Plus grande taille
-               ]
+            "model": "dall-e-3",
+            "prompt": prompt,
+            "n": 1,
+            "size": "1024x1024"
+        ]
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = headers

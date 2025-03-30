@@ -1,5 +1,3 @@
-// MealViewModel.swift
-
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
@@ -39,15 +37,25 @@ class MealViewModel: ObservableObject {
                         let data = doc.data()
                         print("📄 Données Firestore reçues : \(data)")
 
-                        guard let name = data["name"] as? String,
-                              let description = data["description"] as? String else {
-                            print("❌ Données mal formatées pour un repas.")
+                        guard let mealId = data["mealId"] as? Int,
+                              let protein = data["protein"] as? String,
+                              let starchy = data["starchy"] as? String,
+                              let vegetable = data["vegetable"] as? String else {
+                            print("❌ Données manquantes ou incorrectes")
                             return nil
                         }
 
                         let imageURL = data["imageURL"] as? String
-                        let meal = Meal(name: name, imageURL: imageURL, description: description)
-                        print("✅ Repas créé : \(meal)")
+
+                        let meal = Meal(
+                            mealId: mealId,
+                            protein: protein,
+                            starchy: starchy,
+                            vegetable: vegetable,
+                            imageURL: imageURL
+                        )
+
+                        print("✅ Repas converti : \(meal)")
                         return meal
                     }
 
@@ -56,7 +64,7 @@ class MealViewModel: ObservableObject {
 
                     print("📸 Vérification des images des repas récupérés:")
                     for meal in self.meals {
-                        print("Nom: \(meal.name), Image URL: \(meal.imageURL ?? "Aucune URL")")
+                        print("Protéine: \(meal.protein), Féculent: \(meal.starchy), Légume: \(meal.vegetable), Image URL: \(meal.imageURL ?? "Aucune URL")")
                     }
                 }
             }

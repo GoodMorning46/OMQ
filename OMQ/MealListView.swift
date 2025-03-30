@@ -174,16 +174,21 @@ struct MealListView: View {
                         }
                     }
 
-                    Text(meal.name)
-                        .font(.subheadline)
-                        .padding(.vertical, 8)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("\(meal.protein), \(meal.starchy), \(meal.vegetable)")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.black)
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .lineLimit(2)
+                    }
+                    .padding(.horizontal, 12)
                 }
                 .background(Color.white)
                 .cornerRadius(12)
                 .clipped()
                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 4)
-                .padding(.horizontal, 8) // ✅ optionnel pour l’aération
+                .padding(.horizontal, 8)
             }
         }
     }

@@ -1,5 +1,3 @@
-import FirebaseStorage
-
 import Foundation
 import FirebaseFirestore
 import FirebaseStorage
@@ -16,7 +14,7 @@ class MealUploader {
         let imageName = UUID().uuidString + ".png"
         let imageRef = storageRef.child("mealImages/\(imageName)")
 
-        // 🔁 Upload du fichier local vers Firebase Storage
+        // 🔁 Upload de l’image
         imageRef.putFile(from: imageURL, metadata: nil) { metadata, error in
             if let error = error {
                 print("❌ Erreur d'upload : \(error.localizedDescription)")
@@ -24,7 +22,6 @@ class MealUploader {
                 return
             }
 
-            // ✅ Récupérer l’URL de téléchargement publique
             imageRef.downloadURL { url, error in
                 if let error = error {
                     print("❌ Erreur récupération URL : \(error.localizedDescription)")
@@ -37,8 +34,11 @@ class MealUploader {
                     return
                 }
 
-                // 🔥 Enregistrement du repas avec l’URL dans Firestore
-                saveMealToFirestore(meal: meal, imageDownloadURL: downloadURL.absoluteString, userId: userId, completion: completion)
+                // ✅ Mise à jour du modèle avec l'URL d’image
+                var updatedMeal = meal
+                updatedMeal.imageURL = downloadURL.absoluteString
+
+                saveMealToFirestore(meal: updatedMeal, imageDownloadURL: downloadURL.absoluteString, userId: userId, completion: completion)
             }
         }
     }
@@ -46,8 +46,10 @@ class MealUploader {
     private static func saveMealToFirestore(meal: Meal, imageDownloadURL: String, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let db = Firestore.firestore()
         let mealData: [String: Any] = [
-            "name": meal.name,
-            "description": meal.description ?? "",
+            "mealId": meal.mealId,
+            "protein": meal.protein,
+            "starchy": meal.starchy,
+            "vegetable": meal.vegetable,
             "imageURL": imageDownloadURL,
             "createdAt": Timestamp(date: Date())
         ]
@@ -57,7 +59,7 @@ class MealUploader {
                 print("❌ Firestore error : \(error.localizedDescription)")
                 completion(.failure(error))
             } else {
-                print("✅ Repas enregistré avec succès dans Firestore.")
+                print("✅ Repas enregistré avec les nouveaux champs.")
                 completion(.success(()))
             }
         }

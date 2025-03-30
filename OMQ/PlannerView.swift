@@ -47,7 +47,9 @@ class MealPlanner: ObservableObject {
         }
         
         let mealData: [String: Any] = [
-            "name": meal.name,
+            "protein": meal.protein,
+            "starchy": meal.starchy,
+            "vegetable": meal.vegetable,
             "category": category,
             "date": date,
             "createdAt": Timestamp(date: Date())

@@ -1,35 +1,52 @@
-//
-//  Meal.swift
-//  OMQ
-//
-//  Created by Benjamin Lanery on 29/12/2024.
-//
-
 import Foundation
 import UIKit
 import SwiftUI
 
 struct Meal: Identifiable, Codable {
-    let id: String
-    var name: String
+    let id: String  // Toujours nécessaire pour SwiftUI
+    var mealId: Int
+    var protein: String
+    var starchy: String
+    var vegetable: String
     var imageURL: String?
-    var description: String?
 
-    init(id: String = UUID().uuidString, name: String, imageURL: String? = nil, description: String? = nil) {
+    init(id: String = UUID().uuidString, mealId: Int, protein: String, starchy: String, vegetable: String, imageURL: String? = nil) {
         self.id = id
-        self.name = name
+        self.mealId = mealId
+        self.protein = protein
+        self.starchy = starchy
+        self.vegetable = vegetable
         self.imageURL = imageURL
-        self.description = description
     }
 
-    // 🔥 Fonction pour transformer un document Firestore en `Meal`
     static func fromFirestore(document: [String: Any]) -> Meal? {
-        guard let name = document["name"] as? String else { return nil }
+        guard
+            let mealId = document["mealId"] as? Int,
+            let protein = document["protein"] as? String,
+            let starchy = document["starchy"] as? String,
+            let vegetable = document["vegetable"] as? String
+        else {
+            return nil
+        }
+
         return Meal(
             id: document["id"] as? String ?? UUID().uuidString,
-            name: name,
-            imageURL: document["imageURL"] as? String,
-            description: document["description"] as? String
+            mealId: mealId,
+            protein: protein,
+            starchy: starchy,
+            vegetable: vegetable,
+            imageURL: document["imageURL"] as? String
         )
+    }
+
+    func toFirestoreData() -> [String: Any] {
+        return [
+            "id": id,
+            "mealId": mealId,
+            "protein": protein,
+            "starchy": starchy,
+            "vegetable": vegetable,
+            "imageURL": imageURL ?? ""
+        ]
     }
 }

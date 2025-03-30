@@ -5,13 +5,14 @@ import FirebaseAuth
 struct ContentView: View {
     @Binding var meals: [Meal]
     var onDismiss: () -> Void
-    @State private var meal = Meal(name: "", description: "")
+
+    @State private var meal = Meal(mealId: Int.random(in: 1000...9999), protein: "", starchy: "", vegetable: "", imageURL: nil)
     @State private var isGeneratingImage = false
     @Environment(\.dismiss) private var dismiss
     private let imageGenerator = ImageGenerator()
 
     var isFormValid: Bool {
-        !meal.name.isEmpty && !(meal.description?.isEmpty ?? true)
+        !meal.protein.isEmpty && !meal.starchy.isEmpty && !meal.vegetable.isEmpty
     }
 
     var body: some View {
@@ -21,24 +22,16 @@ struct ContentView: View {
                 .padding()
 
             Form {
-                Section(header: Text("Nom du repas")) {
-                    TextField("Entrez le nom", text: $meal.name)
+                Section(header: Text("Protéine")) {
+                    TextField("Ex: Poulet", text: $meal.protein)
                 }
 
-                Section(header: Text("Description des ingrédients")) {
-                    ZStack(alignment: .topLeading) {
-                        if meal.description?.isEmpty ?? true {
-                            Text("Entrez les ingrédients")
-                                .foregroundColor(.gray)
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 8)
-                        }
-                        TextEditor(text: Binding(
-                            get: { meal.description ?? "" },
-                            set: { meal.description = $0 }
-                        ))
-                        .frame(height: 100)
-                    }
+                Section(header: Text("Féculent")) {
+                    TextField("Ex: Riz", text: $meal.starchy)
+                }
+
+                Section(header: Text("Légume")) {
+                    TextField("Ex: Brocoli", text: $meal.vegetable)
                 }
 
                 Section(header: Text("Image")) {
@@ -82,10 +75,8 @@ struct ContentView: View {
 
     private func generateImageAndUpload() {
         isGeneratingImage = true
-        let mealName = meal.name
-        let ingredients = meal.description ?? ""
 
-        imageGenerator.generateImage(for: mealName, ingredients: ingredients) { urlString in
+        imageGenerator.generateImage(for: meal) { urlString in
             guard let urlString = urlString, let url = URL(string: urlString) else {
                 print("❌ URL d'image invalide")
                 isGeneratingImage = false
@@ -130,7 +121,7 @@ struct ContentView: View {
     }
 
     private func resetForm() {
-        meal = Meal(name: "", description: "")
+        meal = Meal(mealId: Int.random(in: 1000...9999), protein: "", starchy: "", vegetable: "", imageURL: nil)
     }
 }
 
