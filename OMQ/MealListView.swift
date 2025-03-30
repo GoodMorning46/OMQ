@@ -54,15 +54,15 @@ struct MealListView: View {
                     .font(.custom("SFProText-Bold", size: 30))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                Button(action: {
-                    showContentView = true
-                }) {
-                    Image(systemName: "plus")
-                        .font(.title3)
-                        .padding(10)
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(Circle())
-                }
+                NavigationLink(destination: UserView()) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(Color.black.opacity(0.8))
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
+                    }
             }
 
             // Ajout d’un espacement
