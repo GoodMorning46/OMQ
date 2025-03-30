@@ -188,8 +188,8 @@ struct MealListView: View {
                 // ✅ Tags d’ingrédients
                 HStack(spacing: 6) {
                     TagLabel(text: meal.protein, tint: .white, blur: Color.blue.opacity(0.6))
-                    TagLabel(text: meal.starchy, tint: .white, blur: Color.green.opacity(0.6))
-                    TagLabel(text: meal.vegetable, tint: .white, blur: Color.orange.opacity(0.6))
+                    TagLabel(text: meal.starchy, tint: .white, blur: Color.orange.opacity(0.6))
+                    TagLabel(text: meal.vegetable, tint: .white, blur: Color.green.opacity(0.6))
                 }
                 .padding(8)
             }
