@@ -137,59 +137,104 @@ struct MealListView: View {
         let onTap: () -> Void
 
         var body: some View {
-            ZStack(alignment: .topTrailing) {
-                VStack(spacing: 0) {
-                    Button(action: onTap) {
-                        if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image.resizable()
-                                        .scaledToFill()
-                                        .frame(height: 200)
-                                        .frame(maxWidth: .infinity)
-                                        .clipped()
-                                case .failure:
-                                    Image(systemName: "photo")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 200)
-                                        .frame(maxWidth: .infinity)
-                                        .foregroundColor(.gray)
-                                case .empty:
-                                    ProgressView()
-                                        .frame(height: 200)
-                                        .frame(maxWidth: .infinity)
-                                @unknown default:
-                                    EmptyView()
-                                }
+            ZStack(alignment: .bottomLeading) {
+                Button(action: onTap) {
+                    if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 220)
+                                    .frame(maxWidth: .infinity)
+                                    .clipped()
+                            case .failure:
+                                Image(systemName: "photo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 220)
+                                    .frame(maxWidth: .infinity)
+                                    .foregroundColor(.gray)
+                            case .empty:
+                                ProgressView()
+                                    .frame(height: 220)
+                                    .frame(maxWidth: .infinity)
+                            @unknown default:
+                                EmptyView()
                             }
-                        } else {
-                            Image(systemName: "photo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 200)
-                                .frame(maxWidth: .infinity)
-                                .foregroundColor(.gray)
                         }
+                    } else {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 220)
+                            .frame(maxWidth: .infinity)
+                            .foregroundColor(.gray)
                     }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("\(meal.protein), \(meal.starchy), \(meal.vegetable)")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.black)
-                            .padding(.vertical, 8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .lineLimit(2)
-                    }
-                    .padding(.horizontal, 12)
                 }
-                .background(Color.white)
-                .cornerRadius(12)
+
+                // ✅ Dégradé noir discret
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.black.opacity(0.9), Color.clear]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: 80)
+                .frame(maxWidth: .infinity)
                 .clipped()
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 4)
-                .padding(.horizontal, 8)
+                .allowsHitTesting(false) // pour ne pas bloquer le bouton
+
+                // ✅ Tags d’ingrédients
+                HStack(spacing: 6) {
+                    TagLabel(text: meal.protein, tint: .white, blur: Color.blue.opacity(0.6))
+                    TagLabel(text: meal.starchy, tint: .white, blur: Color.green.opacity(0.6))
+                    TagLabel(text: meal.vegetable, tint: .white, blur: Color.orange.opacity(0.6))
+                }
+                .padding(8)
             }
+            .background(Color.white)
+            .cornerRadius(16)
+            .clipped()
+            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 4)
+        }
+    }
+
+    struct TagLabel: View {
+        let text: String
+        var tint: Color = .white
+        var blur: Color = Color.black.opacity(0.35)
+
+        var body: some View {
+            Text(text.capitalized)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(tint)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    blur
+                        .blur(radius: 10)
+                        .clipShape(Capsule())
+                )
+                .clipShape(Capsule())
+                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
+        }
+    }
+
+    // ✅ Vue pour chaque tag
+    struct MealTag: View {
+        var text: String
+        var color: Color
+        var textColor: Color
+
+        var body: some View {
+            Text(text)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(textColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(color)
+                .cornerRadius(15)
         }
     }
 }
