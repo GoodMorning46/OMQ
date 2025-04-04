@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
+import SDWebImageSwiftUI
 
 struct MealDetailView: View {
     let meal: Meal
@@ -11,25 +12,28 @@ struct MealDetailView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            // ✅ Fond image
+            // ✅ Image du repas avec cache
             if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 400)
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                            .ignoresSafeArea()
-                    default:
-                        Color.gray.opacity(0.1).frame(height: 400).ignoresSafeArea()
-                    }
-                }
+                WebImage(url: url)
+                    .resizable()
+                    .indicator(.activity)
+                    .transition(.fade(duration: 0.5))
+                    .scaledToFill()
+                    .frame(height: 400)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .ignoresSafeArea()
+            } else {
+                Image(systemName: "photo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 400)
+                    .frame(maxWidth: .infinity)
+                    .foregroundColor(.gray)
+                    .ignoresSafeArea()
             }
 
-            // ✅ Carte blanche
+            // ✅ Carte blanche en bas
             VStack(spacing: 0) {
                 Spacer().frame(height: 350)
 
@@ -139,7 +143,7 @@ struct MealDetailView: View {
     }
 }
 
-// Coin arrondi uniquement en haut
+// ✅ Coins arrondis uniquement en haut
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
