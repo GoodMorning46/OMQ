@@ -43,12 +43,28 @@ struct MainView: View {
     // MARK: - 🧩 Tab Item
     func tabItem(icon: String, label: String, tab: Tab) -> some View {
         Button {
-            selectedTab = tab
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                selectedTab = tab
+            }
         } label: {
             VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(selectedTab == tab ? .blue : .gray)
+                ZStack {
+                    if selectedTab == tab {
+                        Circle()
+                            .fill(Color.blue.opacity(0.15))
+                            .frame(width: 48, height: 48)
+                            .shadow(color: .blue.opacity(0.3), radius: 6, x: 0, y: 4)
+                            .scaleEffect(1.1)
+                            .offset(y: -4)
+                            .transition(.scale)
+                    }
+
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(selectedTab == tab ? .blue : .gray)
+                        .scaleEffect(selectedTab == tab ? 1.15 : 1.0)
+                        .offset(y: selectedTab == tab ? -4 : 0)
+                }
 
                 Text(label)
                     .font(.caption2)

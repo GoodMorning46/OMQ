@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
+import SDWebImageSwiftUI
 
 struct MealListView: View {
     // MARK: - Properties
@@ -31,13 +32,15 @@ struct MealListView: View {
                 Spacer()
             }
             .padding(.horizontal, 20)
-            .background(Color.appBackground) // ✅ Fond personnalisé ici
+            .background(Color.appBackground)
             .onAppear {
-                viewModel.fetchGeneratedMeals()
+                if viewModel.meals.isEmpty {
+                    viewModel.fetchGeneratedMeals()
+                }
             }
             .sheet(isPresented: $showContentView) {
                 ContentView(meals: $viewModel.meals, onDismiss: {
-                    viewModel.fetchGeneratedMeals()
+                    viewModel.forceRefresh()
                 })
             }
             .fullScreenCover(item: $selectedMeal) { meal in
@@ -46,29 +49,27 @@ struct MealListView: View {
         }
     }
 
-    // MARK: - Header (Titre + Boutons + Barre de recherche)
+    // MARK: - Header
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("On mange\nquoi ?")
                     .font(.custom("SFProText-Bold", size: 30))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 NavigationLink(destination: UserView()) {
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .padding(10)
-                            .background(Color.black.opacity(0.8))
-                            .clipShape(Circle())
-                            .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
-                    }
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .padding(10)
+                        .background(Color.black.opacity(0.8))
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
+                }
             }
 
-            // Ajout d’un espacement
-            Spacer().frame(height: 4) // 👈 tu peux ajuster cette valeur
+            Spacer().frame(height: 4)
 
-            // 🔍 Barre de recherche
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
@@ -79,9 +80,7 @@ struct MealListView: View {
             .background(Color.white)
             .cornerRadius(12)
             .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
-            
 
-            // ➕ Bouton Ajouter un repas
             Button(action: {
                 showContentView = true
             }) {
@@ -94,11 +93,11 @@ struct MealListView: View {
                     .cornerRadius(10)
                     .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 4)
             }
-            .padding(.bottom, 12) // ou Spacer(minLength: 12)
+            .padding(.bottom, 12)
         }
     }
 
-    // MARK: - Liste des repas (Grille)
+    // MARK: - Liste des repas
     private var mealsGridView: some View {
         VStack {
             if viewModel.meals.isEmpty {
@@ -140,29 +139,15 @@ struct MealListView: View {
             ZStack(alignment: .bottomLeading) {
                 Button(action: onTap) {
                     if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 220)
-                                    .frame(maxWidth: .infinity)
-                                    .clipped()
-                            case .failure:
-                                Image(systemName: "photo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 220)
-                                    .frame(maxWidth: .infinity)
-                                    .foregroundColor(.gray)
-                            case .empty:
-                                ProgressView()
-                                    .frame(height: 220)
-                                    .frame(maxWidth: .infinity)
-                            @unknown default:
-                                EmptyView()
-                            }
+                        ZStack {
+                            WebImage(url: url)
+                                .resizable()
+                                .indicator(.activity)
+                                .transition(.fade(duration: 0.3))
+                                .scaledToFill()
+                                .frame(height: 220)
+                                .frame(maxWidth: .infinity)
+                                .clipped()
                         }
                     } else {
                         Image(systemName: "photo")
@@ -174,7 +159,6 @@ struct MealListView: View {
                     }
                 }
 
-                // ✅ Dégradé noir discret
                 LinearGradient(
                     gradient: Gradient(colors: [Color.black.opacity(0.9), Color.clear]),
                     startPoint: .bottom,
@@ -183,9 +167,8 @@ struct MealListView: View {
                 .frame(height: 80)
                 .frame(maxWidth: .infinity)
                 .clipped()
-                .allowsHitTesting(false) // pour ne pas bloquer le bouton
+                .allowsHitTesting(false)
 
-                // ✅ Tags d’ingrédients
                 HStack(spacing: 6) {
                     TagLabel(text: meal.protein, tint: .white, blur: Color.blue.opacity(0.6))
                     TagLabel(text: meal.starchy, tint: .white, blur: Color.orange.opacity(0.6))
@@ -221,7 +204,6 @@ struct MealListView: View {
         }
     }
 
-    // ✅ Vue pour chaque tag
     struct MealTag: View {
         var text: String
         var color: Color
@@ -239,7 +221,6 @@ struct MealListView: View {
     }
 }
 
-// MARK: - Preview
 struct MealListView_PreviewContainer: View {
     var body: some View {
         MealListView(mealPlanner: MealPlanner())
