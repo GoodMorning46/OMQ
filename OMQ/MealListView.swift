@@ -11,6 +11,12 @@ struct MealListView: View {
     @State private var showContentView = false
     @State private var searchText: String = ""
 
+    // Filtres sélectionnés
+    @State private var selectedGoal: String = ""
+    @State private var selectedCuisine: String = ""
+    @State private var selectedSeason: String = ""
+    @State private var showFilterSheet = false
+
     @EnvironmentObject var authManager: AuthManager
     @ObservedObject var mealPlanner: MealPlanner
 
@@ -43,6 +49,16 @@ struct MealListView: View {
                     viewModel.forceRefresh()
                 })
             }
+            .sheet(isPresented: $showFilterSheet) {
+                MealFilterView(
+                    selectedGoal: $selectedGoal,
+                    selectedCuisine: $selectedCuisine,
+                    selectedSeason: $selectedSeason,
+                    isPresented: $showFilterSheet
+                )
+                .presentationDetents([.height(650)]) // ← fixe la hauteur
+                .presentationDragIndicator(.hidden)  // ← masque le "drag handle" du système si besoin
+            }
             .fullScreenCover(item: $selectedMeal) { meal in
                 MealDetailView(meal: meal)
             }
@@ -52,6 +68,7 @@ struct MealListView: View {
     // MARK: - Header
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 12) {
+            // 👤 Titre et profil
             HStack {
                 Text("On mange\nquoi ?")
                     .font(.custom("SFProText-Bold", size: 30))
@@ -70,6 +87,7 @@ struct MealListView: View {
 
             Spacer().frame(height: 4)
 
+            // 🔍 Barre de recherche
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
@@ -81,17 +99,33 @@ struct MealListView: View {
             .cornerRadius(12)
             .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
 
-            Button(action: {
-                showContentView = true
-            }) {
-                Text("Ajouter un repas")
-                    .font(.system(size: 14, weight: .semibold))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color.orange)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 4)
+            // ➕ Ajouter un repas & 🎛️ Filtrer
+            HStack {
+                Button(action: {
+                    showContentView = true
+                }) {
+                    Text("Ajouter un repas")
+                        .font(.system(size: 14, weight: .semibold))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.orange)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 4)
+                }
+
+                Spacer()
+
+                Button(action: {
+                    showFilterSheet = true
+                }) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 18, weight: .semibold))
+                        .padding(10)
+                        .background(Color.gray.opacity(0.15))
+                        .clipShape(Circle())
+                        .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 2)
+                }
             }
             .padding(.bottom, 12)
         }
@@ -99,8 +133,14 @@ struct MealListView: View {
 
     // MARK: - Liste des repas
     private var mealsGridView: some View {
-        VStack {
-            if viewModel.meals.isEmpty {
+        let filteredMeals = viewModel.meals.filter { meal in
+            (selectedGoal.isEmpty || meal.goal == selectedGoal) &&
+            (selectedCuisine.isEmpty || meal.cuisine == selectedCuisine) &&
+            (selectedSeason.isEmpty || meal.season == selectedSeason)
+        }
+
+        return VStack {
+            if filteredMeals.isEmpty {
                 Text("Aucun repas enregistré")
                     .font(.headline)
                     .foregroundColor(.gray)
@@ -108,7 +148,7 @@ struct MealListView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(viewModel.meals) { meal in
+                        ForEach(filteredMeals) { meal in
                             MealCardView(meal: meal) {
                                 selectedMeal = meal
                             }

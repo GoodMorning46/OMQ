@@ -43,37 +43,18 @@ class MealViewModel: ObservableObject {
                     }
 
                     self.meals = documents.compactMap { doc in
-                        let data = doc.data()
-                        print("📄 Données Firestore reçues : \(data)")
-
-                        guard let mealId = data["mealId"] as? Int,
-                              let protein = data["protein"] as? String,
-                              let starchy = data["starchy"] as? String,
-                              let vegetable = data["vegetable"] as? String else {
-                            print("❌ Données manquantes ou incorrectes")
-                            return nil
+                        let meal = Meal.fromFirestore(document: doc.data())
+                        if meal == nil {
+                            print("⚠️ Un document a été ignoré à cause de données incomplètes")
                         }
-
-                        let imageURL = data["imageURL"] as? String
-
-                        let meal = Meal(
-                            mealId: mealId,
-                            protein: protein,
-                            starchy: starchy,
-                            vegetable: vegetable,
-                            imageURL: imageURL
-                        )
-
-                        print("✅ Repas converti : \(meal)")
                         return meal
                     }
 
-                    self.hasLoadedMeals = true // ✅ Marqué comme chargé
+                    self.hasLoadedMeals = true
                     print("✅ Nombre total de repas chargés : \(self.meals.count)")
 
-                    print("📸 Vérification des images des repas récupérés:")
                     for meal in self.meals {
-                        print("Protéine: \(meal.protein), Féculent: \(meal.starchy), Légume: \(meal.vegetable), Image URL: \(meal.imageURL ?? "Aucune URL")")
+                        print("🥩 \(meal.protein), 🥔 \(meal.starchy), 🥦 \(meal.vegetable), 🎯 \(meal.goal), 🍽️ \(meal.cuisine), 🌦️ \(meal.season)")
                     }
                 }
             }

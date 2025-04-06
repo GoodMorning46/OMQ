@@ -9,7 +9,7 @@ struct MainView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             // 🧩 Vue principale selon l'onglet sélectionné
             Group {
                 switch selectedTab {
@@ -22,20 +22,23 @@ struct MainView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.white)
 
-            // 🧭 Custom Tab Bar
-            HStack {
-                tabItem(icon: "fork.knife", label: "Repas", tab: .home)
-                tabItem(icon: "calendar", label: "Planning", tab: .planner)
-                tabItem(icon: "cart", label: "Liste", tab: .cart)
-                tabItem(icon: "sparkles", label: "Découvrir", tab: .profile)
+            VStack {
+                Spacer()
+
+                // 🧭 Custom Tab Bar flottante
+                HStack {
+                    tabItem(icon: "fork.knife", label: "Repas", tab: .home)
+                    tabItem(icon: "calendar", label: "Planning", tab: .planner)
+                    tabItem(icon: "cart", label: "Liste", tab: .cart)
+                    tabItem(icon: "sparkles", label: "Découvrir", tab: .profile)
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
+                .background(Color.appBackground)
+                .cornerRadius(30)
+                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
-            .background(Color.appBackground)
-            .cornerRadius(30)
-            .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
-            .padding(.bottom, 20)
-            .padding(.horizontal, 10)
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
@@ -75,7 +78,6 @@ struct MainView: View {
     }
 }
 
-// MARK: - Preview
 #Preview {
     MainView()
 }

@@ -38,28 +38,23 @@ class MealUploader {
                 var updatedMeal = meal
                 updatedMeal.imageURL = downloadURL.absoluteString
 
-                saveMealToFirestore(meal: updatedMeal, imageDownloadURL: downloadURL.absoluteString, userId: userId, completion: completion)
+                saveMealToFirestore(meal: updatedMeal, userId: userId, completion: completion)
             }
         }
     }
 
-    private static func saveMealToFirestore(meal: Meal, imageDownloadURL: String, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    private static func saveMealToFirestore(meal: Meal, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let db = Firestore.firestore()
-        let mealData: [String: Any] = [
-            "mealId": meal.mealId,
-            "protein": meal.protein,
-            "starchy": meal.starchy,
-            "vegetable": meal.vegetable,
-            "imageURL": imageDownloadURL,
-            "createdAt": Timestamp(date: Date())
-        ]
+
+        var mealData = meal.toFirestoreData()
+        mealData["createdAt"] = Timestamp(date: Date()) // Ajout de la date
 
         db.collection("users").document(userId).collection("generatedMeals").addDocument(data: mealData) { error in
             if let error = error {
                 print("❌ Firestore error : \(error.localizedDescription)")
                 completion(.failure(error))
             } else {
-                print("✅ Repas enregistré avec les nouveaux champs.")
+                print("✅ Repas enregistré avec tous les champs.")
                 completion(.success(()))
             }
         }

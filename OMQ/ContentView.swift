@@ -6,13 +6,25 @@ struct ContentView: View {
     @Binding var meals: [Meal]
     var onDismiss: () -> Void
 
-    @State private var meal = Meal(mealId: Int.random(in: 1000...9999), protein: "", starchy: "", vegetable: "", imageURL: nil)
-    @State private var isGeneratingImage = false
     @Environment(\.dismiss) private var dismiss
     private let imageGenerator = ImageGenerator()
 
+    // Champs utilisateur
+    @State private var mealId = Int.random(in: 1000...9999)
+    @State private var protein = ""
+    @State private var starchy = ""
+    @State private var vegetable = ""
+    @State private var goal = "🏡 Quotidien"
+    @State private var cuisine = "🏷️ Standard"
+    @State private var season = "⛅️ Toute saison"
+    @State private var isGeneratingImage = false
+
+    let goals = ["🏡 Quotidien", "🥗 Perte de poids", "💪 Prise de masse", "👦 Enfant"]
+    let cuisines = ["🏷️ Standard", "🍕 Italienne", "🍜 Asiatique", "🥘 Orientale", "🌭 Américaine", "🥖 Française", "🌮 Mexicaine"]
+    let seasons = ["⛅️ Toute saison", "❄️ Hiver", "☀️️ Été"]
+
     var isFormValid: Bool {
-        !meal.protein.isEmpty && !meal.starchy.isEmpty && !meal.vegetable.isEmpty
+        !protein.isEmpty && !starchy.isEmpty && !vegetable.isEmpty
     }
 
     var body: some View {
@@ -23,15 +35,34 @@ struct ContentView: View {
 
             Form {
                 Section(header: Text("Protéine")) {
-                    TextField("Ex: Poulet", text: $meal.protein)
+                    TextField("Ex: Poulet", text: $protein)
                 }
 
                 Section(header: Text("Féculent")) {
-                    TextField("Ex: Riz", text: $meal.starchy)
+                    TextField("Ex: Riz", text: $starchy)
                 }
 
                 Section(header: Text("Légume")) {
-                    TextField("Ex: Brocoli", text: $meal.vegetable)
+                    TextField("Ex: Brocoli", text: $vegetable)
+                }
+
+                Section(header: Text("Objectif")) {
+                    Picker("Objectif", selection: $goal) {
+                        ForEach(goals, id: \.self) { Text($0) }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+
+                Section(header: Text("Type de cuisine")) {
+                    Picker("Cuisine", selection: $cuisine) {
+                        ForEach(cuisines, id: \.self) { Text($0) }
+                    }
+                }
+
+                Section(header: Text("Saison")) {
+                    Picker("Saison", selection: $season) {
+                        ForEach(seasons, id: \.self) { Text($0) }
+                    }
                 }
 
                 Section(header: Text("Image")) {
@@ -76,6 +107,17 @@ struct ContentView: View {
     private func generateImageAndUpload() {
         isGeneratingImage = true
 
+        let meal = Meal(
+            mealId: mealId,
+            protein: protein,
+            starchy: starchy,
+            vegetable: vegetable,
+            imageURL: nil,
+            goal: goal,
+            cuisine: cuisine,
+            season: season
+        )
+
         imageGenerator.generateImage(for: meal) { urlString in
             guard let urlString = urlString, let url = URL(string: urlString) else {
                 print("❌ URL d'image invalide")
@@ -96,7 +138,6 @@ struct ContentView: View {
                         switch result {
                         case .success():
                             meals.append(meal)
-                            resetForm()
                             onDismiss()
                             dismiss()
                         case .failure(let error):
@@ -118,10 +159,6 @@ struct ContentView: View {
             completion(localURL)
         }
         task.resume()
-    }
-
-    private func resetForm() {
-        meal = Meal(mealId: Int.random(in: 1000...9999), protein: "", starchy: "", vegetable: "", imageURL: nil)
     }
 }
 
