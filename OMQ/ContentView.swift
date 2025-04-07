@@ -8,6 +8,9 @@ struct ContentView: View {
 
     @Environment(\.dismiss) private var dismiss
     private let imageGenerator = ImageGenerator()
+    
+    private let nameGenerator = NameGenerator()
+    @State private var generatedName = ""
 
     // Champs utilisateur
     @State private var mealId = Int.random(in: 1000...9999)
@@ -107,41 +110,54 @@ struct ContentView: View {
     private func generateImageAndUpload() {
         isGeneratingImage = true
 
-        let meal = Meal(
-            mealId: mealId,
+        nameGenerator.generateName(
             protein: protein,
             starchy: starchy,
             vegetable: vegetable,
-            imageURL: nil,
-            goal: goal,
-            cuisine: cuisine,
-            season: season
-        )
+            goal: goal
+        ) { generated in
+            DispatchQueue.main.async {
+                self.generatedName = generated ?? "Plat sans nom"
+                print("🍽️ Nom généré : \(self.generatedName)")
 
-        imageGenerator.generateImage(for: meal) { urlString in
-            guard let urlString = urlString, let url = URL(string: urlString) else {
-                print("❌ URL d'image invalide")
-                isGeneratingImage = false
-                return
-            }
+                let meal = Meal(
+                    mealId: mealId,
+                    name: self.generatedName,
+                    protein: protein,
+                    starchy: starchy,
+                    vegetable: vegetable,
+                    imageURL: nil,
+                    goal: goal,
+                    cuisine: cuisine,
+                    season: season
+                )
 
-            downloadImage(from: url) { localURL in
-                guard let localURL = localURL else {
-                    print("❌ Erreur : échec du téléchargement local")
-                    isGeneratingImage = false
-                    return
-                }
-
-                MealUploader.uploadMeal(meal, imageURL: localURL) { result in
-                    DispatchQueue.main.async {
+                imageGenerator.generateImage(for: meal) { urlString in
+                    guard let urlString = urlString, let url = URL(string: urlString) else {
+                        print("❌ URL d'image invalide")
                         isGeneratingImage = false
-                        switch result {
-                        case .success():
-                            meals.append(meal)
-                            onDismiss()
-                            dismiss()
-                        case .failure(let error):
-                            print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
+                        return
+                    }
+
+                    downloadImage(from: url) { localURL in
+                        guard let localURL = localURL else {
+                            print("❌ Erreur : échec du téléchargement local")
+                            isGeneratingImage = false
+                            return
+                        }
+
+                        MealUploader.uploadMeal(meal, imageURL: localURL) { result in
+                            DispatchQueue.main.async {
+                                isGeneratingImage = false
+                                switch result {
+                                case .success():
+                                    meals.append(meal)
+                                    onDismiss()
+                                    dismiss()
+                                case .failure(let error):
+                                    print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
+                                }
+                            }
                         }
                     }
                 }

@@ -5,12 +5,13 @@ import SwiftUI
 struct Meal: Identifiable, Codable {
     let id: String  // Toujours nécessaire pour SwiftUI
     var mealId: Int
+    var name: String       // ✅ Nouveau champ
     var protein: String
     var starchy: String
     var vegetable: String
     var imageURL: String?
 
-    // ✅ Nouveaux champs
+    // ✅ Champs supplémentaires
     var goal: String        // Ex: "🏡 Quotidien"
     var cuisine: String     // Ex: "🍕 Italienne"
     var season: String      // Ex: "☀️ Été"
@@ -18,6 +19,7 @@ struct Meal: Identifiable, Codable {
     init(
         id: String = UUID().uuidString,
         mealId: Int,
+        name: String = "",
         protein: String,
         starchy: String,
         vegetable: String,
@@ -28,6 +30,7 @@ struct Meal: Identifiable, Codable {
     ) {
         self.id = id
         self.mealId = mealId
+        self.name = name
         self.protein = protein
         self.starchy = starchy
         self.vegetable = vegetable
@@ -40,6 +43,7 @@ struct Meal: Identifiable, Codable {
     static func fromFirestore(document: [String: Any]) -> Meal? {
         guard
             let mealId = document["mealId"] as? Int,
+            let name = document["name"] as? String,
             let protein = document["protein"] as? String,
             let starchy = document["starchy"] as? String,
             let vegetable = document["vegetable"] as? String,
@@ -53,6 +57,7 @@ struct Meal: Identifiable, Codable {
         return Meal(
             id: document["id"] as? String ?? UUID().uuidString,
             mealId: mealId,
+            name: name,
             protein: protein,
             starchy: starchy,
             vegetable: vegetable,
@@ -67,6 +72,7 @@ struct Meal: Identifiable, Codable {
         return [
             "id": id,
             "mealId": mealId,
+            "name": name,
             "protein": protein,
             "starchy": starchy,
             "vegetable": vegetable,

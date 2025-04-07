@@ -5,12 +5,11 @@ import FirebaseAuth
 class MealViewModel: ObservableObject {
     @Published var meals: [Meal] = []
     @Published var isLoadingMeals = true
-    private var hasLoadedMeals = false // ✅ Cache mémoire
+    private var hasLoadedMeals = false
 
     func fetchGeneratedMeals() {
         print("🔥 fetchGeneratedMeals() est appelé")
 
-        // ✅ Si les repas sont déjà en cache, on ne recharge pas
         guard !hasLoadedMeals else {
             print("⚠️ Repas déjà chargés, on ne refait pas l’appel Firestore")
             return
@@ -54,13 +53,12 @@ class MealViewModel: ObservableObject {
                     print("✅ Nombre total de repas chargés : \(self.meals.count)")
 
                     for meal in self.meals {
-                        print("🥩 \(meal.protein), 🥔 \(meal.starchy), 🥦 \(meal.vegetable), 🎯 \(meal.goal), 🍽️ \(meal.cuisine), 🌦️ \(meal.season)")
+                        print("📦 Nom: \(meal.name), 🥩 \(meal.protein), 🥔 \(meal.starchy), 🥦 \(meal.vegetable), 🎯 \(meal.goal), 🍽️ \(meal.cuisine), 🌦️ \(meal.season)")
                     }
                 }
             }
     }
 
-    // ✅ Pour forcer le rechargement depuis Firestore (ex: après ajout)
     func forceRefresh() {
         hasLoadedMeals = false
         fetchGeneratedMeals()

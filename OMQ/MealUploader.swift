@@ -14,7 +14,6 @@ class MealUploader {
         let imageName = UUID().uuidString + ".png"
         let imageRef = storageRef.child("mealImages/\(imageName)")
 
-        // 🔁 Upload de l’image
         imageRef.putFile(from: imageURL, metadata: nil) { metadata, error in
             if let error = error {
                 print("❌ Erreur d'upload : \(error.localizedDescription)")
@@ -34,7 +33,6 @@ class MealUploader {
                     return
                 }
 
-                // ✅ Mise à jour du modèle avec l'URL d’image
                 var updatedMeal = meal
                 updatedMeal.imageURL = downloadURL.absoluteString
 
@@ -47,14 +45,14 @@ class MealUploader {
         let db = Firestore.firestore()
 
         var mealData = meal.toFirestoreData()
-        mealData["createdAt"] = Timestamp(date: Date()) // Ajout de la date
+        mealData["createdAt"] = Timestamp(date: Date())
 
         db.collection("users").document(userId).collection("generatedMeals").addDocument(data: mealData) { error in
             if let error = error {
                 print("❌ Firestore error : \(error.localizedDescription)")
                 completion(.failure(error))
             } else {
-                print("✅ Repas enregistré avec tous les champs.")
+                print("✅ Repas enregistré avec tous les champs (incluant le nom).")
                 completion(.success(()))
             }
         }

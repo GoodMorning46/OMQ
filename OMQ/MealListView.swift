@@ -209,12 +209,26 @@ struct MealListView: View {
                 .clipped()
                 .allowsHitTesting(false)
 
-                HStack(spacing: 6) {
-                    TagLabel(text: meal.protein, tint: .white, blur: Color.blue.opacity(0.6))
-                    TagLabel(text: meal.starchy, tint: .white, blur: Color.orange.opacity(0.6))
-                    TagLabel(text: meal.vegetable, tint: .white, blur: Color.green.opacity(0.6))
+                VStack(alignment: .leading, spacing: 6) {
+                    // ✅ Nom du repas
+                    if !meal.name.isEmpty {
+                        Text(meal.name.capitalized)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .cornerRadius(12)
+                            .shadow(radius: 2)
+                    }
+
+                    // ✅ Tags ingrédients
+                    HStack(spacing: 6) {
+                        TagLabel(text: meal.protein, tint: .white, blur: Color.blue.opacity(0.6))
+                        TagLabel(text: meal.starchy, tint: .white, blur: Color.orange.opacity(0.6))
+                        TagLabel(text: meal.vegetable, tint: .white, blur: Color.green.opacity(0.6))
+                    }
                 }
-                .padding(8)
+                .padding(10)
             }
             .background(Color.white)
             .cornerRadius(16)
