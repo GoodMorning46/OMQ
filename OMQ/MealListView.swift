@@ -48,6 +48,8 @@ struct MealListView: View {
                 ContentView(meals: $viewModel.meals, onDismiss: {
                     viewModel.forceRefresh()
                 })
+                .presentationDetents([.height(620)]) // 🔧 ajuste la hauteur ici
+                .presentationDragIndicator(.visible) // optionnel : garde ou masque la poignée
             }
             .sheet(isPresented: $showFilterSheet) {
                 MealFilterView(
