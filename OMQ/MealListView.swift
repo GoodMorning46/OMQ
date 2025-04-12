@@ -7,6 +7,7 @@ struct MealListView: View {
     // MARK: - Properties
     @StateObject private var viewModel = MealViewModel()
     @State private var selectedMeal: Meal? = nil
+    @State private var navigateToMealDetail = false
     @State private var showPicker = false
     @State private var showContentView = false
     @State private var searchText: String = ""
@@ -48,8 +49,6 @@ struct MealListView: View {
                 ContentView(meals: $viewModel.meals, onDismiss: {
                     viewModel.forceRefresh()
                 })
-                .presentationDetents([.height(620)]) // 🔧 ajuste la hauteur ici
-                .presentationDragIndicator(.visible) // optionnel : garde ou masque la poignée
             }
             .sheet(isPresented: $showFilterSheet) {
                 MealFilterView(
@@ -58,19 +57,29 @@ struct MealListView: View {
                     selectedSeason: $selectedSeason,
                     isPresented: $showFilterSheet
                 )
-                .presentationDetents([.height(650)]) // ← fixe la hauteur
-                .presentationDragIndicator(.hidden)  // ← masque le "drag handle" du système si besoin
+                .presentationDetents([.height(650)])
+                .presentationDragIndicator(.hidden)
             }
-            .fullScreenCover(item: $selectedMeal) { meal in
-                MealDetailView(meal: meal)
-            }
+            .background(
+                NavigationLink(
+                            destination: Group {
+                                if let meal = selectedMeal {
+                                    MealDetailView(meal: meal)
+                                } else {
+                                    EmptyView()
+                                }
+                            },
+                            isActive: $navigateToMealDetail,
+                            label: { EmptyView() }
+                        )
+                .hidden()
+            )
         }
     }
 
     // MARK: - Header
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // 👤 Titre et profil
             HStack {
                 Text("On mange\nquoi ?")
                     .font(.custom("SFProText-Bold", size: 30))
@@ -89,7 +98,6 @@ struct MealListView: View {
 
             Spacer().frame(height: 4)
 
-            // 🔍 Barre de recherche
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
@@ -101,7 +109,6 @@ struct MealListView: View {
             .cornerRadius(12)
             .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
 
-            // ➕ Ajouter un repas & 🎛️ Filtrer
             HStack {
                 Button(action: {
                     showContentView = true
@@ -136,21 +143,9 @@ struct MealListView: View {
     // MARK: - Liste des repas
     private var mealsGridView: some View {
         let filteredMeals = viewModel.meals.filter { meal in
-            // 🔍 Filtrage par tags (objectifs, cuisine, saison)
-            let matchesTags = (selectedGoal.isEmpty || meal.goal == selectedGoal) &&
-                              (selectedCuisine.isEmpty || meal.cuisine == selectedCuisine) &&
-                              (selectedSeason.isEmpty || meal.season == selectedSeason)
-
-            // 🔍 Filtrage par recherche texte
-            if searchText.count >= 3 {
-                let search = searchText.lowercased()
-                let matchesName = meal.name.lowercased().contains(search)
-                let matchesIngredients = (meal.proteins + meal.starchies + meal.vegetables)
-                    .contains(where: { $0.lowercased().contains(search) })
-                return matchesTags && (matchesName || matchesIngredients)
-            } else {
-                return matchesTags
-            }
+            (selectedGoal.isEmpty || meal.goal == selectedGoal) &&
+            (selectedCuisine.isEmpty || meal.cuisine == selectedCuisine) &&
+            (selectedSeason.isEmpty || meal.season == selectedSeason)
         }
 
         return VStack {
@@ -164,7 +159,10 @@ struct MealListView: View {
                     VStack(spacing: 16) {
                         ForEach(filteredMeals) { meal in
                             MealCardView(meal: meal) {
+                                let generator = UIImpactFeedbackGenerator(style: .light)
+                                generator.impactOccurred()
                                 selectedMeal = meal
+                                navigateToMealDetail = true
                             }
                         }
                     }
@@ -191,11 +189,7 @@ struct MealListView: View {
 
         var body: some View {
             ZStack(alignment: .bottomLeading) {
-                Button(action: {
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.impactOccurred() // 💥 Vibration légère
-                    onTap()
-                }) {
+                Button(action: onTap) {
                     if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
                         ZStack {
                             WebImage(url: url)
@@ -228,7 +222,6 @@ struct MealListView: View {
                 .allowsHitTesting(false)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    // ✅ Nom du repas
                     if !meal.name.isEmpty {
                         Text(meal.name.capitalized)
                             .font(.system(size: 18, weight: .semibold))
@@ -239,7 +232,6 @@ struct MealListView: View {
                             .shadow(radius: 2)
                     }
 
-                    // ✅ Tags ingrédients
                     HStack(spacing: 6) {
                         let allTags: [(String, Color)] =
                             meal.proteins.map { ($0, .blue) } +
@@ -249,7 +241,7 @@ struct MealListView: View {
                         let visibleTags = allTags.prefix(3)
                         let hasMore = allTags.count > 3
 
-                        ForEach(visibleTags, id: \.0) { (text, color) in
+                        ForEach(visibleTags, id: \ .0) { (text, color) in
                             TagLabel(text: text, tint: .white, blur: color.opacity(0.6))
                         }
 

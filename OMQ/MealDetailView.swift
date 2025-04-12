@@ -118,6 +118,7 @@ struct MealDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
     }
+    
 
     // ✅ Ligne d’ingrédient stylisée
     private func ingredientRow(icon: String, label: String, value: String) -> some View {
