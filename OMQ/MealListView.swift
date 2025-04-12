@@ -223,16 +223,24 @@ struct MealListView: View {
 
                     // ✅ Tags ingrédients
                     HStack(spacing: 6) {
-                        ForEach(meal.proteins, id: \.self) { item in
-                            TagLabel(text: item, tint: .white, blur: Color.blue.opacity(0.6))
+                        let allTags: [(String, Color)] =
+                            meal.proteins.map { ($0, .blue) } +
+                            meal.starchies.map { ($0, .orange) } +
+                            meal.vegetables.map { ($0, .green) }
+
+                        let visibleTags = allTags.prefix(3)
+                        let hasMore = allTags.count > 3
+
+                        ForEach(visibleTags, id: \.0) { (text, color) in
+                            TagLabel(text: text, tint: .white, blur: color.opacity(0.6))
                         }
-                        ForEach(meal.starchies, id: \.self) { item in
-                            TagLabel(text: item, tint: .white, blur: Color.orange.opacity(0.6))
-                        }
-                        ForEach(meal.vegetables, id: \.self) { item in
-                            TagLabel(text: item, tint: .white, blur: Color.green.opacity(0.6))
+
+                        if hasMore {
+                            TagLabel(text: "⋯", tint: .white, blur: Color.gray.opacity(0.4))
                         }
                     }
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(10)
             }
@@ -250,10 +258,12 @@ struct MealListView: View {
 
         var body: some View {
             Text(text.capitalized)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(tint)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .background(
                     blur
                         .blur(radius: 10)
