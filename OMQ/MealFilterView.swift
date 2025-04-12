@@ -8,8 +8,6 @@ struct MealFilterView: View {
     @Binding var isPresented: Bool
 
     let goals = ["🏡 Quotidien", "🥗 Perte de poids", "💪 Prise de masse", "👦 Enfant"]
-    let cuisines = ["🏷️ Standard", "🍕 Italienne", "🍜 Asiatique", "🥘 Orientale", "🌭 Américaine", "🥖 Française", "🌮 Mexicaine"]
-    let seasons = ["⛅️ Toute saison", "❄️ Hiver", "☀️️ Été"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 25) {
@@ -21,8 +19,7 @@ struct MealFilterView: View {
                 .padding(.top, 8)
 
             FilterSection(title: "Objectif", options: goals, selected: $selectedGoal)
-            FilterSection(title: "Type de cuisine", options: cuisines, selected: $selectedCuisine)
-            FilterSection(title: "Saison", options: seasons, selected: $selectedSeason)
+
 
             // ✅ ESPACE AJOUTÉ ICI
             Spacer(minLength: 16)

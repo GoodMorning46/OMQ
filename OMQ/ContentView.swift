@@ -97,20 +97,6 @@ struct ContentView: View {
                     }
                 }
 
-                // Section Type de cuisine
-                Section(header: Text("Type de cuisine")) {
-                    Picker("Cuisine", selection: $cuisine) {
-                        ForEach(cuisines, id: \.self) { Text($0) }
-                    }
-                }
-
-                // Section Saison
-                Section(header: Text("Saison")) {
-                    Picker("Saison", selection: $season) {
-                        ForEach(seasons, id: \.self) { Text($0) }
-                    }
-                }
-
                 // Section Image
                 Section(header: Text("Image")) {
                     if isGeneratingImage {
