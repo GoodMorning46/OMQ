@@ -17,12 +17,10 @@ struct ContentView: View {
     @State private var proteins: [String] = [""]
     @State private var starchies: [String] = [""]
     @State private var vegetables: [String] = [""]
-    @State private var goal = "🏡 Quotidien"
     @State private var cuisine = "🏷️ Standard"
     @State private var season = "⛅️ Toute saison"
     @State private var isGeneratingImage = false
 
-    let goals = ["🏡 Quotidien", "🥗 Perte de poids", "💪 Prise de masse", "👦 Enfant"]
     let cuisines = ["🏷️ Standard", "🍕 Italienne", "🍜 Asiatique", "🥘 Orientale", "🌭 Américaine", "🥖 Française", "🌮 Mexicaine"]
     let seasons = ["⛅️ Toute saison", "❄️ Hiver", "☀️️ Été"]
 
@@ -99,14 +97,6 @@ struct ContentView: View {
                     }
                 }
 
-                // Section Objectif
-                Section(header: Text("Objectif")) {
-                    Picker("Objectif", selection: $goal) {
-                        ForEach(goals, id: \.self) { Text($0) }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-
                 // Section Type de cuisine
                 Section(header: Text("Type de cuisine")) {
                     Picker("Cuisine", selection: $cuisine) {
@@ -165,58 +155,66 @@ struct ContentView: View {
     private func generateImageAndUpload() {
         isGeneratingImage = true
 
-        let meal = Meal(
-            mealId: mealId,
-            proteins: proteins.filter { !$0.isEmpty },
-            starchies: starchies.filter { !$0.isEmpty },
-            vegetables: vegetables.filter { !$0.isEmpty },
-            imageURL: nil,
-            goal: goal,
-            cuisine: cuisine,
-            season: season
-        )
-
-        // Génération du nom du repas via IA
-        NameGenerator.generateName(
+        // 🧠 IA : Déduction automatique de l’objectif
+        CategorizationGenerator.categorizeMeal(
             proteins: proteins,
             starchies: starchies,
-            vegetables: vegetables,
-            goal: goal
-        ) { name in
-            guard let name = name else {
-                print("❌ Échec de la génération du nom")
-                isGeneratingImage = false
-                return
-            }
+            vegetables: vegetables
+        ) { detectedGoal in
+            let finalGoal = detectedGoal ?? "🏡 Quotidien" // Valeur par défaut en cas d’échec
 
-            var namedMeal = meal
-            namedMeal.name = name
-
-            // Génération de l’image après le nom
-            imageGenerator.generateImage(for: namedMeal) { urlString in
-                guard let urlString = urlString, let url = URL(string: urlString) else {
-                    print("❌ URL d'image invalide")
+            // 🎨 IA : Génération du nom
+            NameGenerator.generateName(
+                proteins: proteins,
+                starchies: starchies,
+                vegetables: vegetables,
+                goal: finalGoal
+            ) { name in
+                guard let name = name else {
+                    print("❌ Échec de la génération du nom")
                     isGeneratingImage = false
                     return
                 }
 
-                downloadImage(from: url) { localURL in
-                    guard let localURL = localURL else {
-                        print("❌ Erreur : échec du téléchargement local")
+                // Construction du modèle complet du repas
+                let meal = Meal(
+                    mealId: mealId,
+                    proteins: proteins,
+                    starchies: starchies,
+                    vegetables: vegetables,
+                    imageURL: nil,
+                    name: name,
+                    goal: finalGoal,
+                    cuisine: cuisine,
+                    season: season
+                )
+
+                // 🎨 IA : Génération de l’image
+                imageGenerator.generateImage(for: meal) { urlString in
+                    guard let urlString = urlString, let url = URL(string: urlString) else {
+                        print("❌ URL d'image invalide")
                         isGeneratingImage = false
                         return
                     }
 
-                    MealUploader.uploadMeal(namedMeal, imageURL: localURL) { result in
-                        DispatchQueue.main.async {
+                    downloadImage(from: url) { localURL in
+                        guard let localURL = localURL else {
+                            print("❌ Erreur : échec du téléchargement local")
                             isGeneratingImage = false
-                            switch result {
-                            case .success():
-                                meals.append(namedMeal)
-                                onDismiss()
-                                dismiss()
-                            case .failure(let error):
-                                print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
+                            return
+                        }
+
+                        MealUploader.uploadMeal(meal, imageURL: localURL) { result in
+                            DispatchQueue.main.async {
+                                isGeneratingImage = false
+                                switch result {
+                                case .success():
+                                    meals.append(meal)
+                                    onDismiss()
+                                    dismiss()
+                                case .failure(let error):
+                                    print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
+                                }
                             }
                         }
                     }

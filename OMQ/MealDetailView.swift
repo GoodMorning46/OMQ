@@ -56,6 +56,9 @@ struct MealDetailView: View {
                         ingredientRow(icon: "🥦", label: "Légume", value: item)
                     }
 
+                    // 🎯 Objectif généré par IA
+                    ingredientRow(icon: "🎯", label: "Objectif", value: meal.goal)
+
                     Button(action: {
                         showAlert = true
                     }) {
@@ -77,7 +80,6 @@ struct MealDetailView: View {
                 .cornerRadius(30, corners: [.topLeft, .topRight])
                 .shadow(radius: 10)
             }
-
             // ✅ Bouton retour (optionnel avec swipe-back)
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
