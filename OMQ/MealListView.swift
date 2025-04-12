@@ -136,9 +136,21 @@ struct MealListView: View {
     // MARK: - Liste des repas
     private var mealsGridView: some View {
         let filteredMeals = viewModel.meals.filter { meal in
-            (selectedGoal.isEmpty || meal.goal == selectedGoal) &&
-            (selectedCuisine.isEmpty || meal.cuisine == selectedCuisine) &&
-            (selectedSeason.isEmpty || meal.season == selectedSeason)
+            // 🔍 Filtrage par tags (objectifs, cuisine, saison)
+            let matchesTags = (selectedGoal.isEmpty || meal.goal == selectedGoal) &&
+                              (selectedCuisine.isEmpty || meal.cuisine == selectedCuisine) &&
+                              (selectedSeason.isEmpty || meal.season == selectedSeason)
+
+            // 🔍 Filtrage par recherche texte
+            if searchText.count >= 3 {
+                let search = searchText.lowercased()
+                let matchesName = meal.name.lowercased().contains(search)
+                let matchesIngredients = (meal.proteins + meal.starchies + meal.vegetables)
+                    .contains(where: { $0.lowercased().contains(search) })
+                return matchesTags && (matchesName || matchesIngredients)
+            } else {
+                return matchesTags
+            }
         }
 
         return VStack {
@@ -179,7 +191,11 @@ struct MealListView: View {
 
         var body: some View {
             ZStack(alignment: .bottomLeading) {
-                Button(action: onTap) {
+                Button(action: {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred() // 💥 Vibration légère
+                    onTap()
+                }) {
                     if let imageURL = meal.imageURL, let url = URL(string: imageURL) {
                         ZStack {
                             WebImage(url: url)
