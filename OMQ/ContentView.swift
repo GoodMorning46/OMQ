@@ -14,9 +14,9 @@ struct ContentView: View {
 
     // Champs utilisateur
     @State private var mealId = Int.random(in: 1000...9999)
-    @State private var protein = ""
-    @State private var starchy = ""
-    @State private var vegetable = ""
+    @State private var proteins: [String] = [""]
+    @State private var starchies: [String] = [""]
+    @State private var vegetables: [String] = [""]
     @State private var goal = "🏡 Quotidien"
     @State private var cuisine = "🏷️ Standard"
     @State private var season = "⛅️ Toute saison"
@@ -27,7 +27,9 @@ struct ContentView: View {
     let seasons = ["⛅️ Toute saison", "❄️ Hiver", "☀️️ Été"]
 
     var isFormValid: Bool {
-        !protein.isEmpty && !starchy.isEmpty && !vegetable.isEmpty
+        !proteins.filter { !$0.isEmpty }.isEmpty &&
+        !starchies.filter { !$0.isEmpty }.isEmpty &&
+        !vegetables.filter { !$0.isEmpty }.isEmpty
     }
 
     var body: some View {
@@ -37,18 +39,67 @@ struct ContentView: View {
                 .padding()
 
             Form {
-                Section(header: Text("Protéine")) {
-                    TextField("Ex: Poulet", text: $protein)
+                // Section Protéine
+                Section(header:
+                    HStack {
+                        Text("Protéine")
+                        Spacer()
+                        Button(action: {
+                            proteins.append("")
+                        }) {
+                            Image(systemName: "plus.circle")
+                        }
+                    }
+                ) {
+                    ForEach(proteins.indices, id: \.self) { index in
+                        TextField("Ex: Poulet", text: Binding(
+                            get: { proteins[index] },
+                            set: { proteins[index] = $0 }
+                        ))
+                    }
                 }
 
-                Section(header: Text("Féculent")) {
-                    TextField("Ex: Riz", text: $starchy)
+                // Section Féculent
+                Section(header:
+                    HStack {
+                        Text("Féculent")
+                        Spacer()
+                        Button(action: {
+                            starchies.append("")
+                        }) {
+                            Image(systemName: "plus.circle")
+                        }
+                    }
+                ) {
+                    ForEach(starchies.indices, id: \.self) { index in
+                        TextField("Ex: Riz", text: Binding(
+                            get: { starchies[index] },
+                            set: { starchies[index] = $0 }
+                        ))
+                    }
                 }
 
-                Section(header: Text("Légume")) {
-                    TextField("Ex: Brocoli", text: $vegetable)
+                // Section Légume
+                Section(header:
+                    HStack {
+                        Text("Légume")
+                        Spacer()
+                        Button(action: {
+                            vegetables.append("")
+                        }) {
+                            Image(systemName: "plus.circle")
+                        }
+                    }
+                ) {
+                    ForEach(vegetables.indices, id: \.self) { index in
+                        TextField("Ex: Brocoli", text: Binding(
+                            get: { vegetables[index] },
+                            set: { vegetables[index] = $0 }
+                        ))
+                    }
                 }
 
+                // Section Objectif
                 Section(header: Text("Objectif")) {
                     Picker("Objectif", selection: $goal) {
                         ForEach(goals, id: \.self) { Text($0) }
@@ -56,18 +107,21 @@ struct ContentView: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
 
+                // Section Type de cuisine
                 Section(header: Text("Type de cuisine")) {
                     Picker("Cuisine", selection: $cuisine) {
                         ForEach(cuisines, id: \.self) { Text($0) }
                     }
                 }
 
+                // Section Saison
                 Section(header: Text("Saison")) {
                     Picker("Saison", selection: $season) {
                         ForEach(seasons, id: \.self) { Text($0) }
                     }
                 }
 
+                // Section Image
                 Section(header: Text("Image")) {
                     if isGeneratingImage {
                         ProgressView()
@@ -81,6 +135,7 @@ struct ContentView: View {
                     }
                 }
             }
+            .cornerRadius(20)
             .cornerRadius(20)
 
             Button(action: {
@@ -110,53 +165,58 @@ struct ContentView: View {
     private func generateImageAndUpload() {
         isGeneratingImage = true
 
-        nameGenerator.generateName(
-            protein: protein,
-            starchy: starchy,
-            vegetable: vegetable,
+        let meal = Meal(
+            mealId: mealId,
+            proteins: proteins.filter { !$0.isEmpty },
+            starchies: starchies.filter { !$0.isEmpty },
+            vegetables: vegetables.filter { !$0.isEmpty },
+            imageURL: nil,
+            goal: goal,
+            cuisine: cuisine,
+            season: season
+        )
+
+        // Génération du nom du repas via IA
+        NameGenerator.generateName(
+            proteins: proteins,
+            starchies: starchies,
+            vegetables: vegetables,
             goal: goal
-        ) { generated in
-            DispatchQueue.main.async {
-                self.generatedName = generated ?? "Plat sans nom"
-                print("🍽️ Nom généré : \(self.generatedName)")
+        ) { name in
+            guard let name = name else {
+                print("❌ Échec de la génération du nom")
+                isGeneratingImage = false
+                return
+            }
 
-                let meal = Meal(
-                    mealId: mealId,
-                    name: self.generatedName,
-                    protein: protein,
-                    starchy: starchy,
-                    vegetable: vegetable,
-                    imageURL: nil,
-                    goal: goal,
-                    cuisine: cuisine,
-                    season: season
-                )
+            var namedMeal = meal
+            namedMeal.name = name
 
-                imageGenerator.generateImage(for: meal) { urlString in
-                    guard let urlString = urlString, let url = URL(string: urlString) else {
-                        print("❌ URL d'image invalide")
+            // Génération de l’image après le nom
+            imageGenerator.generateImage(for: namedMeal) { urlString in
+                guard let urlString = urlString, let url = URL(string: urlString) else {
+                    print("❌ URL d'image invalide")
+                    isGeneratingImage = false
+                    return
+                }
+
+                downloadImage(from: url) { localURL in
+                    guard let localURL = localURL else {
+                        print("❌ Erreur : échec du téléchargement local")
                         isGeneratingImage = false
                         return
                     }
 
-                    downloadImage(from: url) { localURL in
-                        guard let localURL = localURL else {
-                            print("❌ Erreur : échec du téléchargement local")
+                    MealUploader.uploadMeal(namedMeal, imageURL: localURL) { result in
+                        DispatchQueue.main.async {
                             isGeneratingImage = false
-                            return
-                        }
-
-                        MealUploader.uploadMeal(meal, imageURL: localURL) { result in
-                            DispatchQueue.main.async {
-                                isGeneratingImage = false
-                                switch result {
-                                case .success():
-                                    meals.append(meal)
-                                    onDismiss()
-                                    dismiss()
-                                case .failure(let error):
-                                    print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
-                                }
+                            switch result {
+                            case .success():
+                                meals.append(namedMeal)
+                                onDismiss()
+                                dismiss()
+                            case .failure(let error):
+                                print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
                             }
                         }
                     }

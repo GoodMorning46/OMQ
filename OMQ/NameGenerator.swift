@@ -1,9 +1,15 @@
 import Foundation
 
 class NameGenerator {
-    func generateName(protein: String, starchy: String, vegetable: String, goal: String, completion: @escaping (String?) -> Void) {
+    static func generateName(proteins: [String], starchies: [String], vegetables: [String], goal: String, completion: @escaping (String?) -> Void) {
+        
+        // ✅ Conversion des tableaux en texte lisible
+            let proteinList = proteins.joined(separator: ", ")
+            let starchyList = starchies.joined(separator: ", ")
+            let vegetableList = vegetables.joined(separator: ", ")
+        
         let prompt = """
-        Propose un nom de repas simple, appétissant et mémorable (maximum 2 mots) pour un plat composé de : \(protein), \(starchy), \(vegetable). \
+        Propose un nom de repas simple, appétissant et mémorable (maximum 2 mots) pour un plat composé de : \(proteinList), \(starchyList), \(vegetableList). \
         L'objectif du repas est : \(goal). Le nom doit être compréhensible par tous, donner envie, et être facilement retenu.
         """
 

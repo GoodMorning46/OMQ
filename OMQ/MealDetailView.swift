@@ -33,18 +33,28 @@ struct MealDetailView: View {
                     .ignoresSafeArea()
             }
 
-            // ✅ Carte blanche en bas
+            // ✅ Carte blanche
             VStack(spacing: 0) {
                 Spacer().frame(height: 350)
 
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("🍽️ Ton repas")
+                    Text("🍽️ \(meal.name.capitalized)")
                         .font(.system(size: 26, weight: .semibold))
                         .foregroundColor(.black)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
 
-                    ingredientRow(icon: "🥩", label: "Protéine", value: meal.protein)
-                    ingredientRow(icon: "🥔", label: "Féculent", value: meal.starchy)
-                    ingredientRow(icon: "🥦", label: "Légume", value: meal.vegetable)
+                    ForEach(meal.proteins, id: \.self) { item in
+                        ingredientRow(icon: "🥩", label: "Protéine", value: item)
+                    }
+
+                    ForEach(meal.starchies, id: \.self) { item in
+                        ingredientRow(icon: "🥔", label: "Féculent", value: item)
+                    }
+
+                    ForEach(meal.vegetables, id: \.self) { item in
+                        ingredientRow(icon: "🥦", label: "Légume", value: item)
+                    }
 
                     Button(action: {
                         showAlert = true
@@ -68,7 +78,7 @@ struct MealDetailView: View {
                 .shadow(radius: 10)
             }
 
-            // ✅ Bouton retour
+            // ✅ Bouton retour (optionnel avec swipe-back)
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
             }) {
@@ -104,7 +114,7 @@ struct MealDetailView: View {
         } message: {
             Text("Cette action est irréversible.")
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     // ✅ Ligne d’ingrédient stylisée

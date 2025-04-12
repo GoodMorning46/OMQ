@@ -223,9 +223,15 @@ struct MealListView: View {
 
                     // ✅ Tags ingrédients
                     HStack(spacing: 6) {
-                        TagLabel(text: meal.protein, tint: .white, blur: Color.blue.opacity(0.6))
-                        TagLabel(text: meal.starchy, tint: .white, blur: Color.orange.opacity(0.6))
-                        TagLabel(text: meal.vegetable, tint: .white, blur: Color.green.opacity(0.6))
+                        ForEach(meal.proteins, id: \.self) { item in
+                            TagLabel(text: item, tint: .white, blur: Color.blue.opacity(0.6))
+                        }
+                        ForEach(meal.starchies, id: \.self) { item in
+                            TagLabel(text: item, tint: .white, blur: Color.orange.opacity(0.6))
+                        }
+                        ForEach(meal.vegetables, id: \.self) { item in
+                            TagLabel(text: item, tint: .white, blur: Color.green.opacity(0.6))
+                        }
                     }
                 }
                 .padding(10)

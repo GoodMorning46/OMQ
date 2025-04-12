@@ -44,15 +44,26 @@ class MealUploader {
     private static func saveMealToFirestore(meal: Meal, userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let db = Firestore.firestore()
 
-        var mealData = meal.toFirestoreData()
-        mealData["createdAt"] = Timestamp(date: Date())
+        let mealData: [String: Any] = [
+            "id": meal.id,
+            "mealId": meal.mealId,
+            "proteins": meal.proteins,
+            "starchies": meal.starchies,
+            "vegetables": meal.vegetables,
+            "imageURL": meal.imageURL ?? "",
+            "name": meal.name,
+            "goal": meal.goal,
+            "cuisine": meal.cuisine,
+            "season": meal.season,
+            "createdAt": Timestamp(date: Date())
+        ]
 
         db.collection("users").document(userId).collection("generatedMeals").addDocument(data: mealData) { error in
             if let error = error {
                 print("❌ Firestore error : \(error.localizedDescription)")
                 completion(.failure(error))
             } else {
-                print("✅ Repas enregistré avec tous les champs (incluant le nom).")
+                print("✅ Repas enregistré avec tous les champs.")
                 completion(.success(()))
             }
         }

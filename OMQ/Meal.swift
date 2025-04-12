@@ -5,36 +5,36 @@ import SwiftUI
 struct Meal: Identifiable, Codable {
     let id: String  // Toujours nécessaire pour SwiftUI
     var mealId: Int
-    var name: String       // ✅ Nouveau champ
-    var protein: String
-    var starchy: String
-    var vegetable: String
+    var proteins: [String]
+    var starchies: [String]
+    var vegetables: [String]
     var imageURL: String?
 
-    // ✅ Champs supplémentaires
-    var goal: String        // Ex: "🏡 Quotidien"
-    var cuisine: String     // Ex: "🍕 Italienne"
-    var season: String      // Ex: "☀️ Été"
+    // ✅ Autres champs
+    var name: String         // Nom généré par l'IA
+    var goal: String         // Ex: "🏡 Quotidien"
+    var cuisine: String      // Ex: "🍕 Italienne"
+    var season: String       // Ex: "☀️ Été"
 
     init(
         id: String = UUID().uuidString,
         mealId: Int,
-        name: String = "",
-        protein: String,
-        starchy: String,
-        vegetable: String,
+        proteins: [String] = [],
+        starchies: [String] = [],
+        vegetables: [String] = [],
         imageURL: String? = nil,
+        name: String = "",
         goal: String = "🏡 Quotidien",
         cuisine: String = "🏷️ Standard",
         season: String = "⛅️ Toute saison"
     ) {
         self.id = id
         self.mealId = mealId
-        self.name = name
-        self.protein = protein
-        self.starchy = starchy
-        self.vegetable = vegetable
+        self.proteins = proteins
+        self.starchies = starchies
+        self.vegetables = vegetables
         self.imageURL = imageURL
+        self.name = name
         self.goal = goal
         self.cuisine = cuisine
         self.season = season
@@ -43,10 +43,10 @@ struct Meal: Identifiable, Codable {
     static func fromFirestore(document: [String: Any]) -> Meal? {
         guard
             let mealId = document["mealId"] as? Int,
+            let proteins = document["proteins"] as? [String],
+            let starchies = document["starchies"] as? [String],
+            let vegetables = document["vegetables"] as? [String],
             let name = document["name"] as? String,
-            let protein = document["protein"] as? String,
-            let starchy = document["starchy"] as? String,
-            let vegetable = document["vegetable"] as? String,
             let goal = document["goal"] as? String,
             let cuisine = document["cuisine"] as? String,
             let season = document["season"] as? String
@@ -57,11 +57,11 @@ struct Meal: Identifiable, Codable {
         return Meal(
             id: document["id"] as? String ?? UUID().uuidString,
             mealId: mealId,
-            name: name,
-            protein: protein,
-            starchy: starchy,
-            vegetable: vegetable,
+            proteins: proteins,
+            starchies: starchies,
+            vegetables: vegetables,
             imageURL: document["imageURL"] as? String,
+            name: name,
             goal: goal,
             cuisine: cuisine,
             season: season
@@ -72,11 +72,11 @@ struct Meal: Identifiable, Codable {
         return [
             "id": id,
             "mealId": mealId,
-            "name": name,
-            "protein": protein,
-            "starchy": starchy,
-            "vegetable": vegetable,
+            "proteins": proteins,
+            "starchies": starchies,
+            "vegetables": vegetables,
             "imageURL": imageURL ?? "",
+            "name": name,
             "goal": goal,
             "cuisine": cuisine,
             "season": season

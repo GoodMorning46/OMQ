@@ -2,8 +2,12 @@ import Foundation
 
 class ImageGenerator {
     func generateImage(for meal: Meal, completion: @escaping (String?) -> Void) {
+        let proteinList = meal.proteins.joined(separator: ", ")
+        let starchyList = meal.starchies.joined(separator: ", ")
+        let vegetableList = meal.vegetables.joined(separator: ", ")
+
         let prompt = """
-        Un plat joyeux et appétissant, présenté dans une assiette colorée en céramique sur une table en bois clair. Le repas est composé de \(meal.protein), accompagné de \(meal.starchy) et de \(meal.vegetable). La scène est baignée d’une lumière naturelle douce, avec des couleurs vives, des herbes fraîches, et un style convivial qui évoque un déjeuner d’été. L’ambiance est chaleureuse et inspirée des photos culinaires modernes sur Instagram.
+        Un plat joyeux et appétissant, présenté dans une assiette colorée en céramique sur une table en bois clair. Le repas est composé de \(proteinList), accompagné de \(starchyList) et de \(vegetableList). La scène est baignée d’une lumière naturelle douce, avec des couleurs vives, des herbes fraîches, et un style convivial qui évoque un déjeuner d’été. L’ambiance est chaleureuse et inspirée des photos culinaires modernes sur Instagram.
         """
         print("📤 Envoi de la requête à OpenAI avec le prompt : \(prompt)")
 
