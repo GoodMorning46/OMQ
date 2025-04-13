@@ -49,6 +49,8 @@ struct MealListView: View {
                 ContentView(meals: $viewModel.meals, onDismiss: {
                     viewModel.forceRefresh()
                 })
+                .presentationDetents([.height(600)]) // ← taille personnalisée
+                .presentationDragIndicator(.visible) // ← poignée visible pour fermer
             }
             .sheet(isPresented: $showFilterSheet) {
                 MealFilterView(
@@ -143,9 +145,21 @@ struct MealListView: View {
     // MARK: - Liste des repas
     private var mealsGridView: some View {
         let filteredMeals = viewModel.meals.filter { meal in
-            (selectedGoal.isEmpty || meal.goal == selectedGoal) &&
-            (selectedCuisine.isEmpty || meal.cuisine == selectedCuisine) &&
-            (selectedSeason.isEmpty || meal.season == selectedSeason)
+            let matchesGoal = selectedGoal.isEmpty || meal.goal == selectedGoal
+            let matchesCuisine = selectedCuisine.isEmpty || meal.cuisine == selectedCuisine
+            let matchesSeason = selectedSeason.isEmpty || meal.season == selectedSeason
+
+            // 🔍 Filtrage par recherche texte (nom ou ingrédients)
+            let lowercasedSearch = searchText.lowercased()
+            let searchIsEmpty = lowercasedSearch.trimmingCharacters(in: .whitespacesAndNewlines).count < 3
+
+            let matchesSearch = searchIsEmpty ||
+                meal.name.lowercased().contains(lowercasedSearch) ||
+                meal.proteins.contains(where: { $0.lowercased().contains(lowercasedSearch) }) ||
+                meal.starchies.contains(where: { $0.lowercased().contains(lowercasedSearch) }) ||
+                meal.vegetables.contains(where: { $0.lowercased().contains(lowercasedSearch) })
+
+            return matchesGoal && matchesCuisine && matchesSeason && matchesSearch
         }
 
         return VStack {
