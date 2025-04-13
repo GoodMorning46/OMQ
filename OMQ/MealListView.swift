@@ -145,19 +145,25 @@ struct MealListView: View {
     // MARK: - Liste des repas
     private var mealsGridView: some View {
         let filteredMeals = viewModel.meals.filter { meal in
-            let matchesGoal = selectedGoal.isEmpty || meal.goal == selectedGoal
-            let matchesCuisine = selectedCuisine.isEmpty || meal.cuisine == selectedCuisine
-            let matchesSeason = selectedSeason.isEmpty || meal.season == selectedSeason
+            let matchesGoal = selectedGoal.isEmpty || meal.goal.compare(selectedGoal, options: [.diacriticInsensitive, .caseInsensitive]) == .orderedSame
+            let matchesCuisine = selectedCuisine.isEmpty || meal.cuisine.compare(selectedCuisine, options: [.diacriticInsensitive, .caseInsensitive]) == .orderedSame
+            let matchesSeason = selectedSeason.isEmpty || meal.season.compare(selectedSeason, options: [.diacriticInsensitive, .caseInsensitive]) == .orderedSame
 
-            // 🔍 Filtrage par recherche texte (nom ou ingrédients)
-            let lowercasedSearch = searchText.lowercased()
-            let searchIsEmpty = lowercasedSearch.trimmingCharacters(in: .whitespacesAndNewlines).count < 3
+            let lowercasedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let searchIsEmpty = lowercasedSearch.count < 3
+            let normalizedSearch = lowercasedSearch.folding(options: .diacriticInsensitive, locale: .current)
 
             let matchesSearch = searchIsEmpty ||
-                meal.name.lowercased().contains(lowercasedSearch) ||
-                meal.proteins.contains(where: { $0.lowercased().contains(lowercasedSearch) }) ||
-                meal.starchies.contains(where: { $0.lowercased().contains(lowercasedSearch) }) ||
-                meal.vegetables.contains(where: { $0.lowercased().contains(lowercasedSearch) })
+                meal.name.folding(options: .diacriticInsensitive, locale: .current).lowercased().contains(normalizedSearch) ||
+                meal.proteins.contains(where: {
+                    $0.folding(options: .diacriticInsensitive, locale: .current).lowercased().contains(normalizedSearch)
+                }) ||
+                meal.starchies.contains(where: {
+                    $0.folding(options: .diacriticInsensitive, locale: .current).lowercased().contains(normalizedSearch)
+                }) ||
+                meal.vegetables.contains(where: {
+                    $0.folding(options: .diacriticInsensitive, locale: .current).lowercased().contains(normalizedSearch)
+                })
 
             return matchesGoal && matchesCuisine && matchesSeason && matchesSearch
         }

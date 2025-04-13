@@ -20,7 +20,7 @@ class CategorizationGenerator {
         Catégorise ce repas parmi l’un des objectifs suivants :
         🏡 Quotidien, 🥗 Perte de poids, 💪 Prise de masse, 👦 Enfant
 
-        Réponds uniquement par l’un des emojis ci-dessus. Aucune explication.
+        Réponds uniquement avec l’un de ces libellés complets (emoji + nom). Aucune explication, uniquement le libellé exact.
         """
 
         print("📤 Envoi du prompt de catégorisation à OpenAI : \n\(prompt)")

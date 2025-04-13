@@ -158,23 +158,47 @@ struct ContentView: View {
 
     func emojiForIngredient(_ ingredient: String) -> String {
         let lowercased = ingredient.lowercased()
-        let broccolis = ["brocoli", "brocolis"]
-        let chickens = ["poulet", "blanc de poulet"]
-        let rice = ["riz", "basmati", "complet"]
-        let potatoes = ["patate", "pomme de terre", "pommes de terre", "patates", "purée"]
-        let carrots = ["carotte", "carottes"]
-        let lentils = ["lentille", "lentilles"]
-        let beef = ["steak", "boeuf", "bœuf", "entrecôte"]
-        let fish = ["poisson", "saumon", "cabillaud"]
 
-        if broccolis.contains(where: lowercased.contains) { return "🥦" }
-        if chickens.contains(where: lowercased.contains) { return "🍗" }
-        if rice.contains(where: lowercased.contains) { return "🍚" }
-        if potatoes.contains(where: lowercased.contains) { return "🥔" }
-        if carrots.contains(where: lowercased.contains) { return "🥕" }
-        if lentils.contains(where: lowercased.contains) { return "🟤" }
-        if beef.contains(where: lowercased.contains) { return "🥩" }
-        if fish.contains(where: lowercased.contains) { return "🐟" }
+        let emojiMap: [String: [String]] = [
+            "🥦": ["brocoli", "brocolis"],
+            "🍗": ["poulet", "blanc de poulet", "dinde", "volaille", "aiguillettes"],
+            "🥩": ["boeuf", "bœuf", "steak", "entrecôte", "rumsteck", "côte", "viande rouge"],
+            "🐖": ["porc", "jambon", "lard", "bacon", "saucisse"],
+            "🐑": ["agneau", "mouton", "côtelettes", "gigot"],
+            "🐟": ["poisson", "saumon", "cabillaud", "thon", "truite", "sardine", "bar"],
+            "🦐": ["crevette", "gambas", "crustacé", "homard", "langoustine"],
+            "🥚": ["œuf", "oeuf", "omelette", "œufs"],
+            "🍚": ["riz", "basmati", "thaï", "sushi", "complet"],
+            "🥔": ["patate", "pomme de terre", "pommes de terre", "patates", "purée", "gratin dauphinois"],
+            "🍝": ["pâtes", "spaghetti", "tagliatelle", "penne", "macaroni", "lasagnes", "pâte"],
+            "🍞": ["pain", "baguette", "brioche", "toast"],
+            "🌽": ["maïs", "mais", "épi", "popcorn"],
+            "🥕": ["carotte", "carottes", "carotène"],
+            "🍅": ["tomate", "tomates"],
+            "🥬": ["salade", "laitue", "mesclun", "roquette"],
+            "🥒": ["concombre", "cornichon"],
+            "🧅": ["oignon", "échalote"],
+            "🧄": ["ail"],
+            "🫘": ["lentille", "lentilles", "pois chiches", "haricots", "flageolets", "fèves"],
+            "🧀": ["fromage", "gruyère", "emmental", "mozzarella", "chèvre", "comté"],
+            "🥖": ["baguette", "pain", "ficelle"],
+            "🍎": ["pomme", "pommes"],
+            "🍌": ["banane", "bananes"],
+            "🍇": ["raisin", "raisins"],
+            "🍓": ["fraise", "fraises"],
+            "🍍": ["ananas"],
+            "🍊": ["orange", "clémentine", "mandarine"],
+            "🍋": ["citron", "citrons"],
+            "🥭": ["mangue", "mangues"],
+            "🥥": ["noix de coco", "coco"],
+            "🍽️": []
+        ]
+
+        for (emoji, keywords) in emojiMap {
+            if keywords.contains(where: lowercased.contains) {
+                return emoji
+            }
+        }
 
         return "🍽️"
     }
