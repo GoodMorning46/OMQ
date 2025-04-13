@@ -226,42 +226,62 @@ struct ContentView: View {
                     return
                 }
 
-                let meal = Meal(
-                    mealId: mealId,
+                // 🔥 GÉNÉRATION DES MACRONUTRIMENTS
+                NutritionGenerator.generateNutrition(
                     proteins: proteins,
                     starchies: starchies,
-                    vegetables: vegetables,
-                    imageURL: nil,
-                    name: name,
-                    goal: finalGoal,
-                    cuisine: cuisine,
-                    season: season
-                )
-
-                imageGenerator.generateImage(for: meal) { urlString in
-                    guard let urlString = urlString, let url = URL(string: urlString) else {
-                        print("❌ URL d'image invalide")
+                    vegetables: vegetables
+                ) { nutrition in
+                    guard let nutrition = nutrition else {
+                        print("❌ Erreur lors de la génération des macronutriments")
                         isGeneratingImage = false
                         return
                     }
 
-                    downloadImage(from: url) { localURL in
-                        guard let localURL = localURL else {
-                            print("❌ Erreur : échec du téléchargement local")
+                    // 👨‍🍳 Création du repas avec nutrition
+                    let meal = Meal(
+                        mealId: mealId,
+                        proteins: proteins,
+                        starchies: starchies,
+                        vegetables: vegetables,
+                        imageURL: nil,
+                        name: name,
+                        goal: finalGoal,
+                        cuisine: cuisine,
+                        season: season,
+                        calories: nutrition.calories,
+                        proteinsGrams: nutrition.proteins,
+                        carbs: nutrition.carbs,
+                        fats: nutrition.fats,
+                        ingredientQuantities: nutrition.ingredientQuantities
+                    )
+
+                    // 🖼️ Génération de l'image
+                    imageGenerator.generateImage(for: meal) { urlString in
+                        guard let urlString = urlString, let url = URL(string: urlString) else {
+                            print("❌ URL d'image invalide")
                             isGeneratingImage = false
                             return
                         }
 
-                        MealUploader.uploadMeal(meal, imageURL: localURL) { result in
-                            DispatchQueue.main.async {
+                        downloadImage(from: url) { localURL in
+                            guard let localURL = localURL else {
+                                print("❌ Erreur : échec du téléchargement local")
                                 isGeneratingImage = false
-                                switch result {
-                                case .success():
-                                    meals.append(meal)
-                                    onDismiss()
-                                    dismiss()
-                                case .failure(let error):
-                                    print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
+                                return
+                            }
+
+                            MealUploader.uploadMeal(meal, imageURL: localURL) { result in
+                                DispatchQueue.main.async {
+                                    isGeneratingImage = false
+                                    switch result {
+                                    case .success():
+                                        meals.append(meal)
+                                        onDismiss()
+                                        dismiss()
+                                    case .failure(let error):
+                                        print("❌ Erreur lors de l'upload : \(error.localizedDescription)")
+                                    }
                                 }
                             }
                         }

@@ -7,7 +7,7 @@ struct MealDetailView: View {
     let meal: Meal
     @State private var showAlert = false
     @State private var showSuccess = false
-    
+
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
@@ -38,26 +38,54 @@ struct MealDetailView: View {
                 Spacer().frame(height: 350)
 
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("🍽️ \(meal.name.capitalized)")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundColor(.black)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
+                    Text("\(meal.name.capitalized)")
+                        .font(.system(size: 24, weight: .semibold))
 
-                    ForEach(meal.proteins, id: \.self) { item in
-                        ingredientRow(icon: "🥩", label: "Protéine", value: item)
+                    // 🔥 Valeurs nutritionnelles
+                    if let calories = meal.calories,
+                       let proteins = meal.proteinsGrams,
+                       let carbs = meal.carbs,
+                       let fats = meal.fats {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Calories : \(Int(calories)) kcal")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+
+                            HStack(spacing: 16) {
+                                Spacer()
+
+                                nutritionStat(title: "Protéine", value: Int(proteins), unit: "g")
+                                    .frame(maxWidth: .infinity)
+                                nutritionStat(title: "Glucide", value: Int(carbs), unit: "g")
+                                    .frame(maxWidth: .infinity)
+                                nutritionStat(title: "Lipide", value: Int(fats), unit: "g")
+                                    .frame(maxWidth: .infinity)
+
+                                Spacer()
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(16)
+
+                        }
                     }
 
-                    ForEach(meal.starchies, id: \.self) { item in
-                        ingredientRow(icon: "🥔", label: "Féculent", value: item)
+                    // 🧾 Ingrédients + quantités
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Ingrédients")
+                            .font(.headline)
+
+                        ForEach((meal.ingredientQuantities ?? [:]).sorted(by: { $0.key < $1.key }), id: \.key) { ingredient in
+                            ingredientRow(
+                                icon: emojiForIngredient(ingredient.key),
+                                label: ingredient.key.capitalized,
+                                value: "\(ingredient.value)g"
+                            )
+                        }
                     }
 
-                    ForEach(meal.vegetables, id: \.self) { item in
-                        ingredientRow(icon: "🥦", label: "Légume", value: item)
-                    }
-
-                    // 🎯 Objectif généré par IA
-                    ingredientRow(icon: "🎯", label: "Objectif", value: meal.goal)
+                    ingredientRow(icon: "🎯", label: "Catégorie", value: meal.goal)
 
                     Button(action: {
                         showAlert = true
@@ -80,7 +108,7 @@ struct MealDetailView: View {
                 .cornerRadius(30, corners: [.topLeft, .topRight])
                 .shadow(radius: 10)
             }
-            // ✅ Bouton retour (optionnel avec swipe-back)
+
             Button(action: {
                 presentationMode.wrappedValue.dismiss()
             }) {
@@ -95,7 +123,6 @@ struct MealDetailView: View {
             .padding(.leading, 16)
             .padding(.top, 60)
 
-            // ✅ Toast succès
             if showSuccess {
                 VStack {
                     Spacer().frame(height: 80)
@@ -116,11 +143,9 @@ struct MealDetailView: View {
         } message: {
             Text("Cette action est irréversible.")
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitle("", displayMode: .inline)        
     }
-    
 
-    // ✅ Ligne d’ingrédient stylisée
     private func ingredientRow(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 12) {
             Text(icon)
@@ -135,6 +160,26 @@ struct MealDetailView: View {
                     .foregroundColor(.black)
             }
         }
+    }
+
+    private func nutritionStat(title: String, value: Int, unit: String) -> some View {
+        VStack {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.gray)
+            Text("\(value)\(unit)")
+                .fontWeight(.bold)
+        }
+    }
+
+    private func emojiForIngredient(_ ingredient: String) -> String {
+        let lowercased = ingredient.lowercased()
+        if lowercased.contains("poulet") { return "🍗" }
+        if lowercased.contains("pâte") || lowercased.contains("pate") { return "🍝" }
+        if lowercased.contains("brocoli") { return "🥦" }
+        if lowercased.contains("lentille") { return "🫘" }
+        if lowercased.contains("poisson") { return "🐟" }
+        return "🍽️"
     }
 
     private func deleteMeal() {
@@ -156,7 +201,7 @@ struct MealDetailView: View {
     }
 }
 
-// ✅ Coins arrondis uniquement en haut
+// ✅ Extension pour coins arrondis spécifiques
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))

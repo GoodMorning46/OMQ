@@ -3,7 +3,7 @@ import UIKit
 import SwiftUI
 
 struct Meal: Identifiable, Codable {
-    let id: String  // Toujours nécessaire pour SwiftUI
+    let id: String
     var mealId: Int
     var proteins: [String]
     var starchies: [String]
@@ -11,10 +11,19 @@ struct Meal: Identifiable, Codable {
     var imageURL: String?
 
     // ✅ Autres champs
-    var name: String         // Nom généré par l'IA
-    var goal: String         // Ex: "🏡 Quotidien"
-    var cuisine: String      // Ex: "🍕 Italienne"
-    var season: String       // Ex: "☀️ Été"
+    var name: String
+    var goal: String
+    var cuisine: String
+    var season: String
+
+    // ✅ Champs nutritionnels
+    var calories: Double?
+    var proteinsGrams: Double?
+    var carbs: Double?
+    var fats: Double?
+
+    // ✅ Quantités par ingrédient
+    var ingredientQuantities: [String: Int]?
 
     init(
         id: String = UUID().uuidString,
@@ -26,7 +35,12 @@ struct Meal: Identifiable, Codable {
         name: String = "",
         goal: String = "🏡 Quotidien",
         cuisine: String = "🏷️ Standard",
-        season: String = "⛅️ Toute saison"
+        season: String = "⛅️ Toute saison",
+        calories: Double? = nil,
+        proteinsGrams: Double? = nil,
+        carbs: Double? = nil,
+        fats: Double? = nil,
+        ingredientQuantities: [String: Int]? = nil
     ) {
         self.id = id
         self.mealId = mealId
@@ -38,6 +52,11 @@ struct Meal: Identifiable, Codable {
         self.goal = goal
         self.cuisine = cuisine
         self.season = season
+        self.calories = calories
+        self.proteinsGrams = proteinsGrams
+        self.carbs = carbs
+        self.fats = fats
+        self.ingredientQuantities = ingredientQuantities
     }
 
     static func fromFirestore(document: [String: Any]) -> Meal? {
@@ -64,7 +83,12 @@ struct Meal: Identifiable, Codable {
             name: name,
             goal: goal,
             cuisine: cuisine,
-            season: season
+            season: season,
+            calories: document["calories"] as? Double,
+            proteinsGrams: document["proteinsGrams"] as? Double,
+            carbs: document["carbs"] as? Double,
+            fats: document["fats"] as? Double,
+            ingredientQuantities: document["ingredientQuantities"] as? [String: Int]
         )
     }
 
@@ -79,7 +103,12 @@ struct Meal: Identifiable, Codable {
             "name": name,
             "goal": goal,
             "cuisine": cuisine,
-            "season": season
+            "season": season,
+            "calories": calories as Any,
+            "proteinsGrams": proteinsGrams as Any,
+            "carbs": carbs as Any,
+            "fats": fats as Any,
+            "ingredientQuantities": ingredientQuantities as Any
         ]
     }
 }

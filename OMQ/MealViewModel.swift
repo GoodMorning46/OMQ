@@ -61,6 +61,12 @@ class MealViewModel: ObservableObject {
                         let imageURL = data["imageURL"] as? String
                         let id = data["id"] as? String ?? UUID().uuidString
 
+                        let calories = data["calories"] as? Double
+                        let proteinsGrams = data["proteinsGrams"] as? Double
+                        let carbs = data["carbs"] as? Double
+                        let fats = data["fats"] as? Double
+                        let ingredientQuantities = data["ingredientQuantities"] as? [String: Int]
+
                         return Meal(
                             id: id,
                             mealId: mealId,
@@ -71,20 +77,17 @@ class MealViewModel: ObservableObject {
                             name: name,
                             goal: goal,
                             cuisine: cuisine,
-                            season: season
+                            season: season,
+                            calories: calories,
+                            proteinsGrams: proteinsGrams,
+                            carbs: carbs,
+                            fats: fats,
+                            ingredientQuantities: ingredientQuantities
                         )
                     }
 
                     self.hasLoadedMeals = true
                     print("✅ Nombre total de repas chargés : \(self.meals.count)")
-
-                    for meal in self.meals {
-                        let proteins = meal.proteins.joined(separator: ", ")
-                        let starchies = meal.starchies.joined(separator: ", ")
-                        let vegetables = meal.vegetables.joined(separator: ", ")
-
-                        print("📦 Nom: \(meal.name), 🥩 \(proteins), 🥔 \(starchies), 🥦 \(vegetables), 🎯 \(meal.goal), 🍽️ \(meal.cuisine), 🌦️ \(meal.season)")
-                    }
                 }
             }
     }

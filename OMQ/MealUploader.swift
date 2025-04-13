@@ -55,6 +55,11 @@ class MealUploader {
             "goal": meal.goal,
             "cuisine": meal.cuisine,
             "season": meal.season,
+            "calories": meal.calories as Any,
+            "proteinsGrams": meal.proteinsGrams as Any,
+            "carbs": meal.carbs as Any,
+            "fats": meal.fats as Any,
+            "ingredientQuantities": meal.ingredientQuantities as Any,
             "createdAt": Timestamp(date: Date())
         ]
 
